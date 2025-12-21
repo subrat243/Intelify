@@ -109,8 +109,8 @@ export default function AdminNewsSourcesPage() {
                                     <button
                                         onClick={() => handleToggle(source.id)}
                                         className={`px-4 py-2 rounded-lg font-medium transition-colors ${source.is_enabled
-                                                ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
-                                                : 'bg-green-600 hover:bg-green-700 text-white'
+                                            ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                                            : 'bg-green-600 hover:bg-green-700 text-white'
                                             }`}
                                     >
                                         <Power className="w-4 h-4" />

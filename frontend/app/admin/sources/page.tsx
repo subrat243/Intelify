@@ -1,3 +1,5 @@
+'use client'
+
 import { useEffect, useState } from 'react'
 import { Plus, Settings, Power, Trash2, Edit, Activity } from 'lucide-react'
 import { apiClient } from '@/lib/api'
