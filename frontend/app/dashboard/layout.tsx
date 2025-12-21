@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Shield, LayoutDashboard, Globe, Database, FileText, Settings, LogOut, Menu, X } from 'lucide-react'
+import { Shield, LayoutDashboard, Globe, Database, FileText, Settings, LogOut, Menu, X, AlertTriangle } from 'lucide-react'
 import { apiClient } from '@/lib/api'
 
 export default function DashboardLayout({
@@ -93,6 +93,9 @@ export default function DashboardLayout({
                         </NavLink>
                         <NavLink href="/dashboard/news" icon={<FileText className="w-5 h-5" />}>
                             News Feed
+                        </NavLink>
+                        <NavLink href="/dashboard/cves" icon={<AlertTriangle className="w-5 h-5" />}>
+                            CVE Feed
                         </NavLink>
 
                         {(user?.role === 'super_admin' || user?.role === 'analyst') && (
