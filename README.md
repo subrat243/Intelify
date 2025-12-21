@@ -113,6 +113,85 @@ exit()
 - Username: `admin`
 - Password: `admin123`
 
+## 🔧 Troubleshooting
+
+### Docker Permission Denied (WSL/Linux)
+
+If you encounter a `Permission denied` error when running `./start.sh`:
+
+```bash
+PermissionError: [Errno 13] Permission denied
+docker.errors.DockerException: Error while fetching server API version
+```
+
+**Solution:**
+
+```bash
+# 1. Add your user to the docker group
+sudo usermod -aG docker $USER
+
+# 2. Restart Docker service (if using Docker in WSL)
+sudo service docker restart
+
+# 3. Apply group changes
+newgrp docker
+
+# 4. Test Docker
+docker ps
+```
+
+**For Docker Desktop on Windows:**
+1. Ensure Docker Desktop is running on Windows
+2. Enable WSL 2 integration:
+   - Open Docker Desktop → Settings → Resources → WSL Integration
+   - Enable integration for your WSL distribution (Ubuntu)
+3. Restart WSL terminal
+
+**Quick Alternative:**
+```bash
+sudo ./start.sh
+```
+
+### Port Already in Use
+
+If ports 3000, 8000, 5432, or 6379 are already in use:
+
+```bash
+# Find and stop conflicting services
+sudo lsof -i :3000  # Frontend
+sudo lsof -i :8000  # Backend
+sudo lsof -i :5432  # PostgreSQL
+sudo lsof -i :6379  # Redis
+
+# Or change ports in docker-compose.yml
+```
+
+### Frontend Build Errors
+
+If you see TypeScript or module errors:
+
+```bash
+cd frontend
+rm -rf node_modules package-lock.json
+npm install
+npm run build
+```
+
+### Database Connection Issues
+
+If backend can't connect to database:
+
+```bash
+# Check if PostgreSQL is running
+docker ps | grep postgres
+
+# View database logs
+docker logs tip_postgres
+
+# Restart database
+docker-compose restart postgres
+```
+
 ## 📦 Project Structure
 
 ```
