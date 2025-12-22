@@ -67,12 +67,50 @@ cd Intelify
 cp .env.example .env
 ```
 
-3. **Edit `.env` and change security keys**
+3. **Generate and set security keys**
+
+> ⚠️ **CRITICAL**: Never use default keys in production! Generate secure random keys.
+
+**Method 1: Using Python (Recommended)**
 ```bash
-# IMPORTANT: Change these in production!
-SECRET_KEY=your-super-secret-jwt-key-change-this
-ENCRYPTION_KEY=your-encryption-key-for-api-keys-change-this
+# Generate SECRET_KEY (for JWT tokens)
+python -c "import secrets; print('SECRET_KEY=' + secrets.token_urlsafe(64))"
+
+# Generate ENCRYPTION_KEY (for API key encryption)
+python -c "import secrets; print('ENCRYPTION_KEY=' + secrets.token_urlsafe(32))"
 ```
+
+**Method 2: Using OpenSSL**
+```bash
+# Generate SECRET_KEY
+echo "SECRET_KEY=$(openssl rand -base64 64 | tr -d '\n')"
+
+# Generate ENCRYPTION_KEY
+echo "ENCRYPTION_KEY=$(openssl rand -base64 32 | tr -d '\n')"
+```
+
+**Method 3: Using PowerShell (Windows)**
+```powershell
+# Generate SECRET_KEY
+"SECRET_KEY=" + -join ((65..90) + (97..122) + (48..57) | Get-Random -Count 64 | ForEach-Object {[char]$_})
+
+# Generate ENCRYPTION_KEY
+"ENCRYPTION_KEY=" + -join ((65..90) + (97..122) + (48..57) | Get-Random -Count 32 | ForEach-Object {[char]$_})
+```
+
+**Then update your `.env` file:**
+```bash
+# Edit .env and replace the placeholder values with your generated keys
+nano .env  # or use your preferred editor
+```
+
+**Security Best Practices:**
+- ✅ Use cryptographically secure random generators
+- ✅ Keep keys at least 32 characters long
+- ✅ Never commit `.env` to version control
+- ✅ Use different keys for development and production
+- ✅ Store production keys in a secure vault
+- ✅ Rotate keys periodically in production
 
 4. **Start the platform**
 ```bash
