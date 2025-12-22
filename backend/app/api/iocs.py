@@ -107,7 +107,7 @@ async def create_ioc(
         category=ioc_data.category,
         tags=ioc_data.tags,
         confidence_score=ioc_data.confidence_score,
-        metadata=ioc_data.metadata or {}
+        extra_data=ioc_data.extra_data or {}
     )
     
     db.add(new_ioc)

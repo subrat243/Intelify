@@ -68,7 +68,7 @@ def fetch_source_data(source_id: int):
                     category=ioc_data.get("category"),
                     tags=ioc_data.get("tags", []),
                     confidence_score=ioc_data.get("confidence_score", 0.5),
-                    metadata=ioc_data.get("metadata", {})
+                    extra_data=ioc_data.get("metadata", {})  # Keep 'metadata' key in dict for backward compatibility
                 )
                 db.add(new_ioc)
                 new_iocs += 1

@@ -164,7 +164,7 @@ class IOCBase(BaseModel):
 class IOCCreate(IOCBase):
     source_id: int
     confidence_score: float = Field(default=0.5, ge=0.0, le=1.0)
-    metadata: Optional[Dict[str, Any]] = None
+    extra_data: Optional[Dict[str, Any]] = None
 
 
 class IOCUpdate(BaseModel):
@@ -186,7 +186,7 @@ class IOCResponse(IOCBase):
     asn_org: Optional[str] = None
     reverse_dns: Optional[str] = None
     mitre_techniques: List[str] = []
-    metadata: Dict[str, Any] = {}
+    extra_data: Dict[str, Any] = {}
     first_seen: datetime
     last_seen: datetime
     correlation_count: int

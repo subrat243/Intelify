@@ -137,8 +137,8 @@ class IOC(Base):
     # MITRE ATT&CK
     mitre_techniques = Column(JSON, default=list)  # List of technique IDs
     
-    # Additional metadata
-    metadata = Column(JSON, default=dict)
+    # Additional metadata (renamed from 'metadata' to avoid SQLAlchemy conflict)
+    extra_data = Column(JSON, default=dict)
     
     # Temporal data
     first_seen = Column(DateTime(timezone=True), server_default=func.now())
