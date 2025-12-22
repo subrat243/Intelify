@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Shield, Lock, User } from 'lucide-react'
+import { Shield, Lock, User, Sun, Moon } from 'lucide-react'
 import { apiClient } from '@/lib/api'
 
 export default function LoginPage() {
@@ -12,6 +12,20 @@ export default function LoginPage() {
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
+    const [darkMode, setDarkMode] = useState(true)
+
+    useEffect(() => {
+        const savedTheme = localStorage.getItem('theme')
+        if (savedTheme) {
+            setDarkMode(savedTheme === 'dark')
+        }
+    }, [])
+
+    const toggleTheme = () => {
+        const newTheme = !darkMode
+        setDarkMode(newTheme)
+        localStorage.setItem('theme', newTheme ? 'dark' : 'light')
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -29,64 +43,75 @@ export default function LoginPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center px-4">
-            <div className="max-w-md w-full">
+        <div className={`min-h-screen flex items-center justify-center px-4 relative overflow-hidden ${darkMode ? 'bg-slate-900' : 'bg-white'}`}>
+            {/* Background pattern */}
+            <div className={`absolute inset-0 ${darkMode ? 'bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800 via-slate-900 to-slate-950 opacity-50' : 'bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-100 via-white to-white opacity-50'}`}></div>
+
+            {/* Theme Toggle */}
+            <button
+                onClick={toggleTheme}
+                className={`fixed top-6 right-6 p-3 rounded-lg transition-all backdrop-blur-sm z-50 ${darkMode ? 'hover:bg-slate-700/50 text-gray-300 hover:text-white border border-slate-600/30' : 'hover:bg-gray-200/50 text-gray-600 hover:text-black border border-gray-300/30'}`}
+            >
+                {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+
+            <div className="max-w-md w-full relative z-10">
                 {/* Logo */}
                 <div className="text-center mb-8">
-                    <div className="flex justify-center mb-4">
-                        <Shield className="w-16 h-16 text-blue-400" />
-                    </div>
-                    <h1 className="text-3xl font-bold text-white mb-2">
-                        Threat Intelligence Platform
+                    <Link href="/" className="inline-flex items-center gap-3 mb-6">
+                        <div className={`p-3 rounded-xl backdrop-blur-sm ${darkMode ? 'bg-slate-800/60 border border-slate-600/30' : 'bg-white/60 border border-gray-300/30 shadow-sm'}`}>
+                            <Shield className={`w-10 h-10 ${darkMode ? 'text-white' : 'text-black'}`} />
+                        </div>
+                        <div className="text-left">
+                            <span className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-black'}`}>Intelify</span>
+                            <div className={`text-xs font-semibold uppercase tracking-wider ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Threat Intelligence</div>
+                        </div>
+                    </Link>
+                    <h1 className={`text-2xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-black'}`}>
+                        Welcome Back
                     </h1>
-                    <p className="text-gray-400">Sign in to access the dashboard</p>
+                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Sign in to access your dashboard</p>
                 </div>
 
                 {/* Login Form */}
-                <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-8">
+                <div className={`backdrop-blur-xl rounded-2xl p-8 border ${darkMode ? 'bg-slate-800/50 border-slate-700/50' : 'bg-white/50 border-gray-300/50 shadow-xl'}`}>
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {error && (
-                            <div className="bg-red-500/10 border border-red-500 text-red-400 px-4 py-3 rounded-lg">
+                            <div className={`px-4 py-3 rounded-lg border ${darkMode ? 'bg-red-500/10 border-red-500/50 text-red-400' : 'bg-red-50 border-red-200 text-red-600'}`}>
                                 {error}
                             </div>
                         )}
 
                         <div>
-                            <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
+                            <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                                 Username
                             </label>
                             <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <User className="h-5 w-5 text-gray-400" />
-                                </div>
+                                <User className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
                                 <input
-                                    id="username"
                                     type="text"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
-                                    required
-                                    className="block w-full pl-10 pr-3 py-2 border border-slate-600 rounded-lg bg-slate-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    className={`w-full pl-10 pr-4 py-3 rounded-lg border transition-all ${darkMode ? 'bg-slate-700/50 border-slate-600 text-white placeholder-gray-400 focus:border-slate-500 focus:ring-2 focus:ring-slate-500/20' : 'bg-white/50 border-gray-300 text-black placeholder-gray-500 focus:border-gray-400 focus:ring-2 focus:ring-gray-400/20'}`}
                                     placeholder="Enter your username"
+                                    required
                                 />
                             </div>
                         </div>
 
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+                            <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                                 Password
                             </label>
                             <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Lock className="h-5 w-5 text-gray-400" />
-                                </div>
+                                <Lock className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
                                 <input
-                                    id="password"
                                     type="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    required
-                                    className="block w-full pl-10 pr-3 py-2 border border-slate-600 rounded-lg bg-slate-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    className={`w-full pl-10 pr-4 py-3 rounded-lg border transition-all ${darkMode ? 'bg-slate-700/50 border-slate-600 text-white placeholder-gray-400 focus:border-slate-500 focus:ring-2 focus:ring-slate-500/20' : 'bg-white/50 border-gray-300 text-black placeholder-gray-500 focus:border-gray-400 focus:ring-2 focus:ring-gray-400/20'}`}
                                     placeholder="Enter your password"
+                                    required
                                 />
                             </div>
                         </div>
@@ -94,30 +119,24 @@ export default function LoginPage() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-800"
+                            className={`w-full py-3 px-4 rounded-lg font-semibold transition-all shadow-lg ${darkMode ? 'bg-white/90 text-black hover:bg-white disabled:bg-gray-600 disabled:text-gray-400' : 'bg-black/90 text-white hover:bg-black disabled:bg-gray-300 disabled:text-gray-500'} disabled:cursor-not-allowed`}
                         >
                             {loading ? 'Signing in...' : 'Sign In'}
                         </button>
                     </form>
 
-                    <div className="mt-6 text-center space-y-2">
-                        <Link href="/" className="text-sm text-blue-400 hover:text-blue-300 block">
-                            ← Back to home
+                    <div className={`mt-6 text-center text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        Don't have an account?{' '}
+                        <Link href="/register" className={`font-semibold ${darkMode ? 'text-white hover:text-gray-200' : 'text-black hover:text-gray-800'}`}>
+                            Create one
                         </Link>
-                        <p className="text-sm text-gray-400">
-                            Don't have an account?{' '}
-                            <Link href="/register" className="text-blue-400 hover:text-blue-300 font-medium">
-                                Create one
-                            </Link>
-                        </p>
                     </div>
                 </div>
 
-                {/* Demo Credentials */}
-                <div className="mt-6 bg-yellow-500/10 border border-yellow-500/50 rounded-lg p-4">
-                    <p className="text-sm text-yellow-400 text-center">
-                        <strong>Demo:</strong> Create an admin user via API or use default credentials
-                    </p>
+                <div className={`mt-6 text-center text-xs ${darkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                    <Link href="/" className={`${darkMode ? 'hover:text-gray-400' : 'hover:text-gray-800'}`}>
+                        ← Back to home
+                    </Link>
                 </div>
             </div>
         </div>

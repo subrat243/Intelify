@@ -113,6 +113,73 @@ exit()
 - Username: `admin`
 - Password: `admin123`
 
+## 🔐 Admin Credentials
+
+### Default Credentials
+
+If you manually created the admin user following the Quick Start guide:
+- **Username**: `admin`
+- **Email**: `admin@tip.local`
+- **Password**: `admin123`
+
+> ⚠️ **IMPORTANT**: Change the default password immediately after first login in production environments!
+
+### If You Used `start.sh`
+
+The `start.sh` script prompts you to create custom admin credentials during setup. Use the credentials you set during that process.
+
+### Reset Admin Password
+
+If you forgot your admin password or need to reset it:
+
+```bash
+# Reset password to 'admin123'
+docker exec -it tip_backend python -c "
+from app.core.database import SessionLocal
+from app.models.models import User
+from app.core.security import get_password_hash
+
+db = SessionLocal()
+admin = db.query(User).filter(User.username == 'admin').first()
+if admin:
+    admin.hashed_password = get_password_hash('admin123')
+    db.commit()
+    print('✅ Password reset to: admin123')
+else:
+    print('❌ Admin user not found')
+"
+```
+
+### Create Additional Admin User
+
+```bash
+docker exec -it tip_backend python -c "
+from app.core.database import SessionLocal
+from app.models.models import User
+from app.core.security import get_password_hash
+
+db = SessionLocal()
+new_admin = User(
+    username='newadmin',
+    email='newadmin@tip.local',
+    hashed_password=get_password_hash('your-password-here'),
+    role='super_admin'
+)
+db.add(new_admin)
+db.commit()
+print('✅ New admin user created!')
+"
+```
+
+### User Roles
+
+The platform supports three user roles:
+- **super_admin**: Full access to all features and settings
+- **admin**: Manage sources, IOCs, and view analytics
+- **viewer**: Read-only access to dashboard and data
+
+New users registered via the UI are assigned the **viewer** role by default.
+
 ## 🔧 Troubleshooting
 
 ### Docker Permission Denied (WSL/Linux)
