@@ -14,11 +14,11 @@ router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def register_user(
     user_data: UserCreate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin)
+    db: Session = Depends(get_db)
 ):
     """
-    Register a new user (Admin only).
+    Register a new user (Public endpoint for self-service registration).
+    New users are assigned 'viewer' role by default.
     """
     # Check if username exists
     if db.query(User).filter(User.username == user_data.username).first():
@@ -34,12 +34,13 @@ async def register_user(
             detail="Email already registered"
         )
     
-    # Create new user
+    # Create new user with viewer role (default for self-registration)
+    # Admin users can only be created via backend/database
     new_user = User(
         username=user_data.username,
         email=user_data.email,
         hashed_password=get_password_hash(user_data.password),
-        role=user_data.role
+        role="viewer"  # Default role for self-registered users
     )
     
     db.add(new_user)
