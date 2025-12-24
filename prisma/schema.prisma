@@ -1,0 +1,295 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// User Management & Authentication
+// ============================================
+
+enum UserRole {
+  ADMIN
+  ANALYST
+  VIEWER
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  password      String    // bcrypt hashed
+  role          UserRole  @default(ANALYST)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lastLoginAt   DateTime?
+  
+  // Relations
+  alerts        Alert[]
+  
+  @@index([email])
+  @@map("users")
+}
+
+// ============================================
+// Threat Intelligence Core
+// ============================================
+
+enum IndicatorType {
+  IP
+  DOMAIN
+  URL
+  HASH_MD5
+  HASH_SHA1
+  HASH_SHA256
+  EMAIL
+  FILE_PATH
+}
+
+enum ConfidenceLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model ThreatIndicator {
+  id              String          @id @default(cuid())
+  type            IndicatorType
+  value           String          // The actual IOC value
+  confidence      ConfidenceLevel @default(MEDIUM)
+  riskScore       Int             @default(50) // 0-100
+  description     String?
+  tags            String[]        // e.g., ["malware", "phishing", "apt28"]
+  firstSeen       DateTime        @default(now())
+  lastSeen        DateTime        @default(now())
+  isActive        Boolean         @default(true)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  // Enrichment data
+  geolocation     String?         // Country/City for IPs
+  asn             String?         // Autonomous System Number
+  organization    String?         // Organization owning the IP/Domain
+  
+  // Relations
+  sources         ThreatSource[]
+  cves            CVE[]
+  mitreAttacks    MitreAttack[]
+  correlations    CorrelationResult[] @relation("CorrelatedIndicators")
+  alerts          Alert[]
+  news            ThreatNews[]
+  
+  @@unique([type, value])
+  @@index([type])
+  @@index([confidence])
+  @@index([riskScore])
+  @@index([isActive])
+  @@index([firstSeen])
+  @@map("threat_indicators")
+}
+
+// ============================================
+// Threat Sources
+// ============================================
+
+enum SourceType {
+  FEED          // Automated threat feed
+  NEWS          // Security news
+  MANUAL        // Manually added
+  OSINT         // Open source intelligence
+}
+
+model ThreatSource {
+  id              String          @id @default(cuid())
+  name            String          @unique
+  type            SourceType
+  url             String?
+  description     String?
+  reliability     Int             @default(50) // 0-100
+  isActive        Boolean         @default(true)
+  lastFetchedAt   DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  // Relations
+  indicators      ThreatIndicator[]
+  news            ThreatNews[]
+  
+  @@index([type])
+  @@index([isActive])
+  @@map("threat_sources")
+}
+
+// ============================================
+// Security News
+// ============================================
+
+model ThreatNews {
+  id              String          @id @default(cuid())
+  title           String
+  summary         String?
+  content         String?
+  url             String          @unique
+  publishedAt     DateTime
+  author          String?
+  imageUrl        String?
+  createdAt       DateTime        @default(now())
+  
+  // Relations
+  sourceId        String
+  source          ThreatSource    @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  indicators      ThreatIndicator[]
+  cves            CVE[]
+  
+  @@index([publishedAt])
+  @@index([sourceId])
+  @@map("threat_news")
+}
+
+// ============================================
+// CVE (Common Vulnerabilities and Exposures)
+// ============================================
+
+enum CVESeverity {
+  NONE
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model CVE {
+  id              String          @id @default(cuid())
+  cveId           String          @unique // e.g., CVE-2024-1234
+  description     String
+  severity        CVESeverity
+  cvssScore       Float?          // 0.0 - 10.0
+  cvssVector      String?
+  publishedDate   DateTime
+  lastModified    DateTime
+  references      String[]        // URLs to advisories
+  affectedProducts String[]       // List of affected software
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  // Relations
+  indicators      ThreatIndicator[]
+  news            ThreatNews[]
+  mitreAttacks    MitreAttack[]
+  
+  @@index([cveId])
+  @@index([severity])
+  @@index([publishedDate])
+  @@map("cves")
+}
+
+// ============================================
+// MITRE ATT&CK Framework
+// ============================================
+
+model MitreAttack {
+  id              String          @id @default(cuid())
+  techniqueId     String          @unique // e.g., T1566.001
+  tacticName      String          // e.g., "Initial Access"
+  techniqueName   String          // e.g., "Spearphishing Attachment"
+  description     String
+  url             String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  // Relations
+  indicators      ThreatIndicator[]
+  cves            CVE[]
+  
+  @@index([tacticName])
+  @@index([techniqueId])
+  @@map("mitre_attacks")
+}
+
+// ============================================
+// Correlation & Analysis
+// ============================================
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model CorrelationResult {
+  id              String          @id @default(cuid())
+  name            String          // e.g., "APT28 Infrastructure Cluster"
+  description     String?
+  riskLevel       RiskLevel
+  confidence      Int             @default(50) // 0-100
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  // Relations
+  indicators      ThreatIndicator[] @relation("CorrelatedIndicators")
+  
+  @@index([riskLevel])
+  @@index([createdAt])
+  @@map("correlation_results")
+}
+
+// ============================================
+// Alerts & Notifications
+// ============================================
+
+enum AlertType {
+  HIGH_RISK_IOC
+  CVE_CRITICAL
+  CORRELATION_MATCH
+  UNUSUAL_ACTIVITY
+  CUSTOM
+}
+
+enum AlertStatus {
+  NEW
+  ACKNOWLEDGED
+  IN_PROGRESS
+  RESOLVED
+  FALSE_POSITIVE
+}
+
+enum AlertSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model Alert {
+  id              String          @id @default(cuid())
+  type            AlertType
+  severity        AlertSeverity
+  status          AlertStatus     @default(NEW)
+  title           String
+  description     String?
+  metadata        Json?           // Additional context
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  acknowledgedAt  DateTime?
+  resolvedAt      DateTime?
+  
+  // Relations
+  indicatorId     String?
+  indicator       ThreatIndicator? @relation(fields: [indicatorId], references: [id], onDelete: SetNull)
+  assignedToId    String?
+  assignedTo      User?           @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
+  
+  @@index([status])
+  @@index([severity])
+  @@index([createdAt])
+  @@index([indicatorId])
+  @@map("alerts")
+}
