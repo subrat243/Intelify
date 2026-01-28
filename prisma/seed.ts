@@ -10,7 +10,9 @@ async function main() {
     const adminPassword = await bcrypt.hash('admin123', 10);
     const admin = await prisma.user.upsert({
         where: { email: 'admin@intelify.com' },
-        update: {},
+        update: {
+            password: adminPassword,
+        },
         create: {
             email: 'admin@intelify.com',
             name: 'Admin User',
@@ -24,7 +26,9 @@ async function main() {
     const analystPassword = await bcrypt.hash('analyst123', 10);
     const analyst = await prisma.user.upsert({
         where: { email: 'analyst@intelify.com' },
-        update: {},
+        update: {
+            password: analystPassword,
+        },
         create: {
             email: 'analyst@intelify.com',
             name: 'Security Analyst',
@@ -38,7 +42,9 @@ async function main() {
     const viewerPassword = await bcrypt.hash('viewer123', 10);
     const viewer = await prisma.user.upsert({
         where: { email: 'viewer@intelify.com' },
-        update: {},
+        update: {
+            password: viewerPassword,
+        },
         create: {
             email: 'viewer@intelify.com',
             name: 'Viewer User',

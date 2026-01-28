@@ -131,6 +131,13 @@ export interface DashboardStats {
         date: string;
         count: number;
     }[];
+    recentAlerts: {
+        id: string;
+        title: string;
+        severity: string;
+        status: string;
+        createdAt: string;
+    }[];
 }
 
 // ============================================

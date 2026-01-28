@@ -12,7 +12,7 @@ const loginSchema = z.object({
 });
 
 export const authConfig: NextAuthConfig = {
-    adapter: PrismaAdapter(prisma),
+    adapter: PrismaAdapter(prisma) as any,
     providers: [
         Credentials({
             name: 'Credentials',
@@ -23,20 +23,36 @@ export const authConfig: NextAuthConfig = {
             async authorize(credentials) {
                 try {
                     const { email, password } = loginSchema.parse(credentials);
+                    console.log(`[AUTH] Attempting login for: ${email}`);
 
-                    const user = await prisma.user.findUnique({
-                        where: { email },
-                    });
+                    let user;
+                    try {
+                        user = await prisma.user.findUnique({
+                            where: { email },
+                        });
+                    } catch (dbError: any) {
+                        console.error(`[AUTH] Database query failed for ${email}:`, dbError.message);
+                        throw new Error('Database connection failed');
+                    }
 
-                    if (!user || !user.password) {
+                    if (!user) {
+                        console.warn(`[AUTH] Login failed: User ${email} not found in database.`);
+                        return null;
+                    }
+
+                    if (!user.password) {
+                        console.warn(`[AUTH] Login failed: User ${email} has no password established.`);
                         return null;
                     }
 
                     const isPasswordValid = await bcrypt.compare(password, user.password);
 
                     if (!isPasswordValid) {
+                        console.warn(`[AUTH] Login failed: Incorrect password for ${email}.`);
                         return null;
                     }
+
+                    console.log(`[AUTH] Login successful for: ${email}`);
 
                     // Update last login
                     await prisma.user.update({
@@ -51,7 +67,7 @@ export const authConfig: NextAuthConfig = {
                         role: user.role,
                     };
                 } catch (error) {
-                    console.error('Auth error:', error);
+                    console.error('[AUTH] Critical error during authorization:', error);
                     return null;
                 }
             },

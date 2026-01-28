@@ -26,6 +26,7 @@ export async function GET(req: NextRequest) {
             indicatorsByType,
             indicatorsByConfidence,
             recentIndicators,
+            recentAlertsData,
         ] = await Promise.all([
             // Total indicators
             prisma.threatIndicator.count({ where: { isActive: true } }),
@@ -64,6 +65,19 @@ export async function GET(req: NextRequest) {
                 },
                 select: {
                     firstSeen: true,
+                },
+            }),
+
+            // Recent alerts (5 most recent)
+            prisma.alert.findMany({
+                take: 5,
+                orderBy: { createdAt: 'desc' },
+                select: {
+                    id: true,
+                    title: true,
+                    severity: true,
+                    status: true,
+                    createdAt: true,
                 },
             }),
         ]);
@@ -107,6 +121,10 @@ export async function GET(req: NextRequest) {
             indicatorsByType: typeStats,
             indicatorsByConfidence: confidenceStats,
             recentActivity,
+            recentAlerts: recentAlertsData.map(alert => ({
+                ...alert,
+                createdAt: alert.createdAt.toISOString(),
+            })),
         };
 
         return NextResponse.json<ApiResponse<DashboardStats>>(

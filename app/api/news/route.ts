@@ -6,12 +6,11 @@ import Parser from 'rss-parser';
 
 const parser = new Parser();
 
-// Popular security news RSS feeds
+// Cybersecurity news RSS feeds
 const NEWS_FEEDS = [
     { name: 'The Hacker News', url: 'https://feeds.feedburner.com/TheHackersNews' },
-    { name: 'Krebs on Security', url: 'https://krebsonsecurity.com/feed/' },
-    { name: 'Bleeping Computer', url: 'https://www.bleepingcomputer.com/feed/' },
-    { name: 'Dark Reading', url: 'https://www.darkreading.com/rss.xml' },
+    { name: 'BleepingComputer', url: 'https://www.bleepingcomputer.com/feed/' },
+    { name: 'Cyber Security News', url: 'https://feeds.feedburner.com/cyber-security-news' },
 ];
 
 export async function POST(req: NextRequest) {

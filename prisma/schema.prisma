@@ -87,6 +87,12 @@ model ThreatIndicator {
   alerts          Alert[]
   news            ThreatNews[]
   
+  // New Relations
+  actorId         String?
+  actor           ThreatActor?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  campaignId      String?
+  campaign        Campaign?       @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  
   @@unique([type, value])
   @@index([type])
   @@index([confidence])
@@ -184,11 +190,78 @@ model CVE {
   indicators      ThreatIndicator[]
   news            ThreatNews[]
   mitreAttacks    MitreAttack[]
+  exploits        Exploit[]
   
   @@index([cveId])
   @@index([severity])
   @@index([publishedDate])
   @@map("cves")
+}
+
+// ============================================
+// Exploits
+// ============================================
+
+model Exploit {
+  id              String          @id @default(cuid())
+  name            String
+  description     String?
+  url             String?         // Link to exploit code (e.g. Exploit-DB)
+  source          String?         // e.g., "Exploit-DB", "GitHub"
+  publishedAt     DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  // Relations
+  cveId           String
+  cve             CVE             @relation(fields: [cveId], references: [id], onDelete: Cascade)
+
+  @@index([cveId])
+  @@map("exploits")
+}
+
+// ============================================
+// Threat Actors & Groups
+// ============================================
+
+model ThreatActor {
+  id              String          @id @default(cuid())
+  name            String          @unique
+  aliases         String[]
+  origin          String?         // Suspected country/region
+  description     String?
+  firstSeen       DateTime        @default(now())
+  lastSeen        DateTime        @default(now())
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  // Relations
+  indicators      ThreatIndicator[]
+  campaigns       Campaign[]
+  mitreAttacks    MitreAttack[]
+
+  @@map("threat_actors")
+}
+
+// ============================================
+// Campaigns
+// ============================================
+
+model Campaign {
+  id              String          @id @default(cuid())
+  name            String          @unique
+  description     String?
+  firstSeen       DateTime        @default(now())
+  lastSeen        DateTime        @default(now())
+  status          String?         // e.g., "ACTIVE", "INACTIVE"
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  // Relations
+  indicators      ThreatIndicator[]
+  actors          ThreatActor[]
+  
+  @@map("campaigns")
 }
 
 // ============================================
@@ -208,6 +281,7 @@ model MitreAttack {
   // Relations
   indicators      ThreatIndicator[]
   cves            CVE[]
+  actors          ThreatActor[]
   
   @@index([tacticName])
   @@index([techniqueId])
