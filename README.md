@@ -22,6 +22,25 @@ Ingests live IOC feeds, provides a searchable REST API, and a React dashboard â€
 
 ---
 
+## ðŸ“¸ Interface Tour
+
+### Slate Dark Mode (Default)
+![Intelify Dashboard - Dark Mode](docs/images/click_feedback_1774129789121.png)
+
+### Light Mode
+![Intelify Dashboard - Light Mode](docs/images/click_feedback_1774129783367.png)
+
+### Real-time Feed Monitoring
+![Intelify Live Feed](docs/images/click_feedback_1774129838865.png)
+
+### Threat Search & Correlation
+![Intelify Search](docs/images/click_feedback_1774129845269.png)
+
+### Infrastructure Radar
+![Intelify Operations](docs/images/click_feedback_1774129851499.png)
+
+---
+
 ## Data Sources
 
 | Feed | Organization | IOC Types | Refresh |
