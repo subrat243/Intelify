@@ -24,7 +24,7 @@ Ingests live IOC feeds, provides a searchable REST API, and a React dashboard â€
 
 ## ðŸ“¸ Interface Tour
 
-### Slate Dark Mode (Default) (docs/images/click_feedback_1774129783367.png)
+### Slate Dark Mode (Default)
 ![Intelify Dashboard - Dark Mode](docs/images/click_feedback_1774129783367.png)
 
 ### Light Mode
