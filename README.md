@@ -68,8 +68,8 @@ All feeds are **free** and **require no API key**.
 ### Option 1 — Docker Compose (recommended)
 
 ```bash
-git clone https://github.com/yourusername/threatintel-os.git
-cd threatintel-os
+git clone https://github.com/subrat243/Intelify.git
+cd Intelify
 docker compose up --build
 ```
 
@@ -144,7 +144,7 @@ curl -X POST http://localhost:8000/api/v1/feeds/feodo/refresh
 ## Project Structure
 
 ```
-threatintel-os/
+Intelify/
 ├── backend/
 │   ├── main.py                  # FastAPI app + lifespan
 │   ├── requirements.txt

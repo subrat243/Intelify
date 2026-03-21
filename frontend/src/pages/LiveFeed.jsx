@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { api } from '../utils/api'
-import { Badge, Icons, IOCModal, Spinner, CONF_COLOR, TYPE_COLOR } from '../components/ui'
+import { Badge, Icons, IOCModal, Spinner, useTheme, TYPE_COLOR, CONF_COLOR } from '../components/ui'
 
 const IOC_TYPES = ['All', 'IP', 'URL', 'Domain', 'Hash', 'CVE', 'Email']
 const CONF_LEVELS = ['All', 'Critical', 'High', 'Medium', 'Low']
 const SOURCES = ['All', 'Feodo Tracker', 'URLhaus', 'ThreatFox', 'MalwareBazaar', 'CISA KEV', 'SSL Blacklist', 'Blocklist.de SSH', 'CINS Score']
 
 export default function LiveFeed() {
+  const { theme } = useTheme()
   const [iocs, setIocs] = useState([])
   const [total, setTotal] = useState(0)
   const [pages, setPages] = useState(1)
@@ -21,7 +22,6 @@ export default function LiveFeed() {
   const [confFilter, setConfFilter] = useState('All')
   const [sourceFilter, setSourceFilter] = useState('All')
 
-  const prevTotalRef = useRef(0)
   const pollRef = useRef(null)
 
   const fetchIOCs = useCallback(async (p = page) => {
@@ -29,17 +29,16 @@ export default function LiveFeed() {
       setError(null)
       const data = await api.getIOCs({ type: typeFilter, confidence: confFilter, source: sourceFilter, page: p, limit: 50 })
       setIocs(prev => {
-        // Highlight newly arrived IOCs
         const prevIds = new Set(prev.map(i => i.id))
-        const fresh = new Set(data.iocs.filter(i => !prevIds.has(i.id)).map(i => i.id))
-        if (fresh.size > 0) {
+        const fresh = new Set((data.iocs || []).filter(i => !prevIds.has(i.id)).map(i => i.id))
+        if (fresh.size > 0 && prev.length > 0) {
           setNewIds(fresh)
           setTimeout(() => setNewIds(new Set()), 4000)
         }
-        return data.iocs
+        return data.iocs || []
       })
-      setTotal(data.total)
-      setPages(data.pages)
+      setTotal(data.total || 0)
+      setPages(data.pages || 1)
       setLoading(false)
     } catch (e) {
       setError(e.message)
@@ -47,14 +46,12 @@ export default function LiveFeed() {
     }
   }, [typeFilter, confFilter, sourceFilter, page])
 
-  // Initial + filter-change fetch
   useEffect(() => {
     setLoading(true)
     setPage(1)
     fetchIOCs(1)
-  }, [typeFilter, confFilter, sourceFilter])
+  }, [typeFilter, confFilter, sourceFilter, fetchIOCs])
 
-  // Poll every 10s
   useEffect(() => {
     pollRef.current = setInterval(() => fetchIOCs(page), 10000)
     return () => clearInterval(pollRef.current)
@@ -66,85 +63,107 @@ export default function LiveFeed() {
     const blob = new Blob([[header, ...rows].join('\n')], { type: 'text/csv' })
     const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
-    a.download = `iocs_${new Date().toISOString().slice(0, 10)}.csv`
+    a.download = `intelify_iocs_${new Date().toISOString().slice(0, 10)}.csv`
     a.click()
   }
 
   return (
-    <div style={{ animation: 'fadeIn 0.3s ease' }}>
+    <div style={{ animation: 'fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)' }}>
       {/* Toolbar */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap', alignItems: 'center' }}>
+      <div style={{ 
+        background: theme.bgAlt, 
+        border: `1px solid ${theme.border}`, 
+        borderRadius: 16, 
+        padding: '16px 20px', 
+        marginBottom: 20, 
+        display: 'flex', 
+        gap: 12, 
+        flexWrap: 'wrap', 
+        alignItems: 'center',
+        boxShadow: theme.isDark ? '0 4px 20px -4px rgba(0,0,0,0.3)' : '0 4px 12px -4px rgba(15,23,42,0.05)',
+        backdropFilter: 'blur(8px)'
+      }}>
         {/* Type pills */}
-        <div style={{ display: 'flex', gap: 4 }}>
-          {IOC_TYPES.map(t => (
+        <div style={{ display: 'flex', gap: 6 }}>
+          {IOC_TYPES.slice(0, 4).map(t => (
             <button key={t} onClick={() => setTypeFilter(t)} style={{
-              padding: '6px 12px', borderRadius: 6, border: '1px solid #0a1628',
-              background: typeFilter === t ? '#0c1e36' : '#040c1a',
-              color: typeFilter === t ? (TYPE_COLOR[t] || '#00ffa3') : '#334155',
-              fontSize: 10, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
+              padding: '8px 14px', borderRadius: 8, border: `1px solid ${typeFilter === t ? theme.primary + '44' : theme.border}`,
+              background: typeFilter === t ? theme.primary + '11' : theme.card,
+              color: typeFilter === t ? theme.primary : theme.textSecondary,
+              fontSize: 12, fontWeight: 600, transition: 'all 0.2s',
             }}>{t}</button>
           ))}
+          <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} style={{ padding: '8px 12px', background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 8, color: theme.textSecondary, fontSize: 12, fontWeight: 600 }}>
+            <option value="" disabled>Other Types</option>
+            {IOC_TYPES.slice(4).map(t => <option key={t}>{t}</option>)}
+          </select>
         </div>
 
+        <div style={{ width: 1, height: 24, background: theme.border }} />
+
         {/* Confidence select */}
-        <select value={confFilter} onChange={e => setConfFilter(e.target.value)}
-          style={{ padding: '6px 10px', background: '#040c1a', border: '1px solid #0a1628', borderRadius: 6, color: '#475569', fontSize: 10, cursor: 'pointer', fontFamily: 'inherit' }}>
-          {CONF_LEVELS.map(c => <option key={c}>{c}</option>)}
-        </select>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 11, color: theme.textMuted, fontWeight: 700, textTransform: 'uppercase' }}>Scope:</span>
+          <select value={confFilter} onChange={e => setConfFilter(e.target.value)}
+            style={{ padding: '8px 12px', background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 8, color: theme.textSecondary, fontSize: 12, fontWeight: 600 }}>
+            {CONF_LEVELS.map(c => <option key={c}>{c}</option>)}
+          </select>
+        </div>
 
         {/* Source select */}
-        <select value={sourceFilter} onChange={e => setSourceFilter(e.target.value)}
-          style={{ padding: '6px 10px', background: '#040c1a', border: '1px solid #0a1628', borderRadius: 6, color: '#475569', fontSize: 10, cursor: 'pointer', fontFamily: 'inherit' }}>
-          {SOURCES.map(s => <option key={s}>{s}</option>)}
-        </select>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 11, color: theme.textMuted, fontWeight: 700, textTransform: 'uppercase' }}>Source:</span>
+          <select value={sourceFilter} onChange={e => setSourceFilter(e.target.value)}
+            style={{ padding: '8px 12px', background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 8, color: theme.textSecondary, fontSize: 12, fontWeight: 600, maxWidth: 150 }}>
+            {SOURCES.map(s => <option key={s}>{s}</option>)}
+          </select>
+        </div>
 
-        {/* Spacer + stats + export */}
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ fontSize: 10, color: '#1e3a5f', fontFamily: 'monospace' }}>
-            {total.toLocaleString()} indicators · page {page}/{pages}
-          </span>
-          <button onClick={() => fetchIOCs(page)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 11px', background: '#040c1a', border: '1px solid #0a1628', borderRadius: 6, color: '#334155', fontSize: 10, cursor: 'pointer' }}>
-            <div style={{ width: 12, height: 12 }}><Icons.RefreshCw /></div>
-            Refresh
+        {/* Export */}
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 10 }}>
+          <button onClick={() => fetchIOCs(page)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 8, color: theme.textSecondary, fontSize: 12, fontWeight: 600, transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = theme.cardHover}>
+            <div style={{ width: 14, height: 14 }}><Icons.RefreshCw /></div>
+            Sync
           </button>
-          <button onClick={exportCSV} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 11px', background: '#040c1a', border: '1px solid #0a1628', borderRadius: 6, color: '#334155', fontSize: 10, cursor: 'pointer' }}>
-            <div style={{ width: 12, height: 12 }}><Icons.Download /></div>
-            Export CSV
+          <button onClick={exportCSV} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 8, color: theme.textSecondary, fontSize: 12, fontWeight: 600, transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = theme.cardHover}>
+            <div style={{ width: 14, height: 14 }}><Icons.Download /></div>
+            Export
           </button>
         </div>
       </div>
 
       {/* Table */}
-      <div style={{ background: '#040c1a', border: '1px solid #0a1628', borderRadius: 12, overflow: 'hidden' }}>
+      <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 16, overflow: 'hidden', boxShadow: theme.isDark ? '0 4px 30px rgba(0,0,0,0.4)' : '0 4px 12px rgba(15,23,42,0.05)', backdropFilter: 'blur(8px)' }}>
         {/* Header */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '68px 1fr 90px 120px 130px 100px',
-          padding: '9px 16px', borderBottom: '1px solid #0a1628',
-          fontSize: 9, color: '#1e3a5f', letterSpacing: '0.13em',
+          gridTemplateColumns: '90px 1fr 120px 160px 160px 110px',
+          padding: '14px 24px', borderBottom: `1px solid ${theme.border}`,
+          fontSize: 10, color: theme.textMuted, fontWeight: 700, letterSpacing: '0.06em',
+          textTransform: 'uppercase'
         }}>
-          <span>TYPE</span><span>INDICATOR</span><span>CONFIDENCE</span><span>MALWARE / THREAT</span><span>SOURCE</span><span>FIRST SEEN</span>
+          <span>Classification</span><span>Indicator / Value</span><span>Confidence</span><span>Threat Family</span><span>Source Feed</span><span>First Seen</span>
         </div>
 
         {/* Body */}
         {error ? (
-          <div style={{ padding: 40, textAlign: 'center', fontSize: 12, color: '#ef4444' }}>
-            ⚠ {error} — is the backend running?
+          <div style={{ padding: 60, textAlign: 'center', fontSize: 14, color: theme.danger, fontWeight: 600 }}>
+            ⚠ {error.toUpperCase()} — API OFFLINE
           </div>
         ) : loading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 60, gap: 12 }}>
-            <Spinner />
-            <span style={{ fontSize: 12, color: '#1e3a5f' }}>Fetching live IOCs from threat feeds...</span>
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: 100, gap: 16 }}>
+            <Spinner size={28} />
+            <span style={{ fontSize: 12, color: theme.textMuted, fontWeight: 500 }}>Decrypting intelligence stream...</span>
           </div>
         ) : iocs.length === 0 ? (
-          <div style={{ padding: 48, textAlign: 'center', fontSize: 12, color: '#1e3a5f' }}>
-            No IOCs match current filters
+          <div style={{ padding: 80, textAlign: 'center', fontSize: 14, color: theme.textMuted, fontWeight: 500 }}>
+            No indicators found matching criteria
           </div>
         ) : (
-          <div style={{ maxHeight: 'calc(100vh - 320px)', overflowY: 'auto' }}>
+          <div style={{ maxHeight: 'calc(100vh - 360px)', overflowY: 'auto' }}>
             {iocs.map(ioc => {
-              const tc = TYPE_COLOR[ioc.type] || '#94a3b8'
-              const cc = CONF_COLOR[ioc.confidence] || '#94a3b8'
+              const tc = TYPE_COLOR(theme)[ioc.type] || theme.textMuted
+              const cc = CONF_COLOR(theme)[ioc.confidence] || theme.textMuted
               const isNew = newIds.has(ioc.id)
               return (
                 <div
@@ -152,29 +171,29 @@ export default function LiveFeed() {
                   onClick={() => setSelectedIOC(ioc)}
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: '68px 1fr 90px 120px 130px 100px',
-                    padding: '8px 16px',
-                    borderBottom: '1px solid #03070e',
+                    gridTemplateColumns: '90px 1fr 120px 160px 160px 110px',
+                    padding: '12px 24px',
+                    borderBottom: `1px solid ${theme.borderLight}`,
                     alignItems: 'center',
                     cursor: 'pointer',
-                    transition: 'background 0.15s',
-                    background: isNew ? '#00ffa308' : 'transparent',
+                    transition: 'all 0.15s',
+                    background: isNew ? theme.accent + '08' : 'transparent',
                     animation: isNew ? 'flashNew 4s ease' : 'none',
                   }}
-                  onMouseEnter={e => e.currentTarget.style.background = '#0a1628'}
-                  onMouseLeave={e => e.currentTarget.style.background = isNew ? '#00ffa308' : 'transparent'}
+                  onMouseEnter={e => e.currentTarget.style.background = theme.cardHover}
+                  onMouseLeave={e => e.currentTarget.style.background = isNew ? theme.accent + '08' : 'transparent'}
                 >
                   <Badge label={ioc.type} color={tc} />
-                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: '#4a6080', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', paddingRight: 16 }}>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: theme.textSecondary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', paddingRight: 24 }}>
                     {ioc.value}
                   </span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                    <span style={{ width: 5, height: 5, borderRadius: '50%', background: cc, flexShrink: 0 }} />
-                    <span style={{ fontSize: 10, color: cc, fontFamily: 'monospace' }}>{ioc.confidence}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: cc, boxShadow: `0 0 6px ${cc}44` }} />
+                    <span style={{ fontSize: 12, color: cc, fontWeight: 600 }}>{ioc.confidence}</span>
                   </div>
-                  <span style={{ fontSize: 10, color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ioc.malware || '—'}</span>
-                  <span style={{ fontSize: 10, color: '#2a4060' }}>{ioc.source}</span>
-                  <span style={{ fontSize: 9, color: '#1e3a5f', fontFamily: 'monospace' }}>{ioc.first_seen?.slice(0, 10) || '—'}</span>
+                  <span style={{ fontSize: 12, color: theme.textSecondary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ioc.malware || 'Unknown'}</span>
+                  <span style={{ fontSize: 12, color: theme.textMuted }}>{ioc.source}</span>
+                  <span style={{ fontSize: 11, color: theme.textMuted, fontFamily: 'var(--font-mono)' }}>{ioc.first_seen?.slice(0, 10) || '—'}</span>
                 </div>
               )
             })}
@@ -183,20 +202,25 @@ export default function LiveFeed() {
       </div>
 
       {/* Pagination */}
-      {pages > 1 && (
-        <div style={{ display: 'flex', gap: 4, justifyContent: 'center', marginTop: 14 }}>
-          {Array.from({ length: Math.min(pages, 10) }, (_, i) => i + 1).map(p => (
-            <button key={p} onClick={() => { setPage(p); fetchIOCs(p) }} style={{
-              width: 30, height: 30, borderRadius: 6,
-              background: page === p ? '#0c1e36' : '#040c1a',
-              border: '1px solid #0a1628',
-              color: page === p ? '#00ffa3' : '#334155',
-              fontSize: 10, cursor: 'pointer', fontFamily: 'inherit',
-            }}>{p}</button>
-          ))}
-          {pages > 10 && <span style={{ fontSize: 10, color: '#1e3a5f', padding: '8px 4px' }}>…{pages}</span>}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 20, padding: '0 8px' }}>
+        <div style={{ fontSize: 12, color: theme.textMuted, fontWeight: 500 }}>
+          Displaying <span style={{ color: theme.textSecondary, fontWeight: 700 }}>{iocs.length}</span> of <span style={{ color: theme.textSecondary, fontWeight: 700 }}>{(total || 0).toLocaleString()}</span> indicators
         </div>
-      )}
+        {pages > 1 && (
+          <div style={{ display: 'flex', gap: 6 }}>
+            {Array.from({ length: Math.min(pages, 8) }, (_, i) => i + 1).map(p => (
+              <button key={p} onClick={() => { setPage(p); fetchIOCs(p) }} style={{
+                minWidth: 32, height: 32, borderRadius: 8,
+                background: page === p ? theme.primary + '11' : theme.card,
+                border: `1px solid ${page === p ? theme.primary + '44' : theme.border}`,
+                color: page === p ? theme.primary : theme.textSecondary,
+                fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s',
+              }}>{p}</button>
+            ))}
+            {pages > 8 && <span style={{ fontSize: 12, color: theme.textMuted, alignSelf: 'center', padding: '0 8px' }}>… {pages}</span>}
+          </div>
+        )}
+      </div>
 
       {selectedIOC && <IOCModal ioc={selectedIOC} onClose={() => setSelectedIOC(null)} />}
     </div>

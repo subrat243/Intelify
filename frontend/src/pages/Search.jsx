@@ -1,10 +1,11 @@
 import { useState, useRef } from 'react'
 import { api } from '../utils/api'
-import { Badge, Icons, IOCModal, Spinner, CONF_COLOR, TYPE_COLOR } from '../components/ui'
+import { Badge, Icons, IOCModal, Spinner, useTheme, TYPE_COLOR, CONF_COLOR } from '../components/ui'
 
 const EXAMPLES = ['emotet', 'cobalt strike', 'CVE-2023', 'trickbot', 'qakbot', 'ransomware', 'ssh', 'phishing']
 
 export default function Search() {
+  const { theme } = useTheme()
   const [query, setQuery] = useState('')
   const [results, setResults] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -51,15 +52,17 @@ export default function Search() {
   }
 
   return (
-    <div style={{ animation: 'fadeIn 0.3s ease', maxWidth: 860, margin: '0 auto' }}>
-      {/* Mode toggle */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 24 }}>
-        {[['single', 'Single Search'], ['bulk', 'Bulk Lookup']].map(([mode, label]) => (
+    <div style={{ animation: 'fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)', maxWidth: 800, margin: '0 auto' }}>
+      {/* Tab toggle */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 32, background: theme.bgAlt, padding: 6, borderRadius: 12, width: 'fit-content', border: `1px solid ${theme.border}` }}>
+        {[['single', 'Intelligence Search'], ['bulk', 'Bulk Correlation']].map(([mode, label]) => (
           <button key={mode} onClick={() => setActiveMode(mode)} style={{
-            padding: '8px 20px', background: activeMode === mode ? '#0c1e36' : '#040c1a',
-            border: '1px solid #0a1628', borderRadius: 7,
-            color: activeMode === mode ? '#00ffa3' : '#334155',
-            fontSize: 11, cursor: 'pointer', fontFamily: 'inherit',
+            padding: '8px 24px', 
+            background: activeMode === mode ? theme.cardSolid : 'transparent',
+            border: `1px solid ${activeMode === mode ? theme.border : 'transparent'}`, 
+            borderRadius: 8,
+            color: activeMode === mode ? theme.accent : theme.textMuted,
+            fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s',
           }}>{label}</button>
         ))}
       </div>
@@ -67,90 +70,98 @@ export default function Search() {
       {/* Single search */}
       {activeMode === 'single' && (
         <>
-          <div style={{ position: 'relative', marginBottom: 16 }}>
-            <div style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: '#1e3a5f', width: 18, height: 18 }}>
+          <div style={{ position: 'relative', marginBottom: 20 }}>
+            <div style={{ position: 'absolute', left: 20, top: '50%', transform: 'translateY(-50%)', color: theme.textMuted, width: 22, height: 22 }}>
               <Icons.Search />
             </div>
             <input
               value={query}
               onChange={e => handleInput(e.target.value)}
-              placeholder="Search IOCs — IP, domain, hash, malware family, CVE…"
+              placeholder="Search indicators, malware families, or vulnerabilities..."
               style={{
-                width: '100%', background: '#040c1a', border: '1px solid #0c1e36', borderRadius: 10,
-                padding: '14px 16px 14px 44px', color: '#c9d4e8', fontSize: 14, fontFamily: 'inherit',
-                transition: 'border-color 0.2s',
+                width: '100%', background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 16,
+                padding: '18px 24px 18px 56px', color: theme.text, fontSize: 16, fontFamily: 'inherit',
+                transition: 'all 0.2s', boxShadow: theme.isDark ? '0 8px 24px -12px rgba(0,0,0,0.5)' : '0 4px 12px -4px rgba(15,23,42,0.05)',
+                outline: 'none', backdropFilter: 'blur(8px)'
               }}
-              onFocus={e => e.target.style.borderColor = '#1e3a5f'}
-              onBlur={e => e.target.style.borderColor = '#0c1e36'}
+              onFocus={e => { e.target.style.borderColor = theme.primary + '66'; e.target.style.boxShadow = `0 0 0 4px ${theme.primary}11` }}
+              onBlur={e => { e.target.style.borderColor = theme.border; e.target.style.boxShadow = theme.isDark ? '0 8px 24px -12px rgba(0,0,0,0.5)' : '0 4px 12px -4px rgba(15,23,42,0.05)' }}
             />
             {loading && (
-              <div style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)' }}>
-                <Spinner size={16} />
+              <div style={{ position: 'absolute', right: 20, top: '50%', transform: 'translateY(-50%)' }}>
+                <Spinner size={20} />
               </div>
             )}
           </div>
 
-          {/* Example chips */}
+          {/* Chips */}
           {!query && (
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 32 }}>
-              <span style={{ fontSize: 10, color: '#1e3a5f', marginRight: 4 }}>Try:</span>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 40, alignItems: 'center' }}>
+              <span style={{ fontSize: 11, color: theme.textMuted, fontWeight: 700, textTransform: 'uppercase', marginRight: 6 }}>Popular Queries:</span>
               {EXAMPLES.map(ex => (
                 <button key={ex} onClick={() => handleInput(ex)} style={{
-                  padding: '4px 10px', background: '#040c1a', border: '1px solid #0a1628',
-                  borderRadius: 20, color: '#334155', fontSize: 10, cursor: 'pointer', fontFamily: 'inherit',
-                }}>{ex}</button>
+                  padding: '6px 14px', background: theme.bgAlt, border: `1px solid ${theme.border}`,
+                  borderRadius: 20, color: theme.textSecondary, fontSize: 11, fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s'
+                }} onMouseEnter={e => { e.currentTarget.style.borderColor = theme.accent; e.currentTarget.style.color = theme.accent }} onMouseLeave={e => { e.currentTarget.style.borderColor = theme.border; e.currentTarget.style.color = theme.textSecondary }}>{ex}</button>
               ))}
             </div>
           )}
 
-          {/* Error */}
-          {error && <div style={{ fontSize: 11, color: '#ef4444', marginBottom: 12 }}>⚠ {error}</div>}
-
           {/* Results */}
           {results && !loading && (
-            <div>
-              <div style={{ fontSize: 10, color: '#1e3a5f', marginBottom: 10, fontFamily: 'monospace' }}>
-                {results.total} result{results.total !== 1 ? 's' : ''} for <span style={{ color: '#475569' }}>"{results.query}"</span>
+            <div style={{ animation: 'fadeIn 0.3s ease' }}>
+              <div style={{ fontSize: 13, color: theme.textSecondary, marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span>Identification found <b>{results.total}</b> matching records</span>
+                <span style={{ fontSize: 11, color: theme.textMuted, fontFamily: 'var(--font-mono)' }}>Search: "{results.query}"</span>
               </div>
+              
               {results.results.length === 0 ? (
-                <div style={{ padding: 40, textAlign: 'center', color: '#1e3a5f', fontSize: 12 }}>
-                  No threat intelligence found for this query.
+                <div style={{ padding: 80, textAlign: 'center', background: theme.bgAlt, borderRadius: 16, border: `1px solid ${theme.border}` }}>
+                  <div style={{ fontSize: 40, marginBottom: 16, opacity: 0.2 }}>🔍</div>
+                  <div style={{ fontSize: 14, color: theme.textMuted, fontWeight: 500 }}>No intelligence correlates with this query.</div>
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {results.results.map(ioc => {
-                    const tc = TYPE_COLOR[ioc.type] || '#94a3b8'
-                    const cc = CONF_COLOR[ioc.confidence] || '#94a3b8'
+                    const tc = TYPE_COLOR(theme)[ioc.type] || theme.textMuted
+                    const cc = CONF_COLOR(theme)[ioc.confidence] || theme.textMuted
                     return (
                       <div
                         key={ioc.id}
                         onClick={() => setSelectedIOC(ioc)}
-                        style={{ display: 'flex', gap: 10, alignItems: 'center', padding: '11px 14px', background: '#040c1a', border: '1px solid #08121e', borderRadius: 8, cursor: 'pointer', transition: 'background 0.15s' }}
-                        onMouseEnter={e => e.currentTarget.style.background = '#0a1628'}
-                        onMouseLeave={e => e.currentTarget.style.background = '#040c1a'}
+                        style={{ 
+                          display: 'flex', gap: 16, alignItems: 'center', padding: '14px 20px', 
+                          background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 12, 
+                          cursor: 'pointer', transition: 'all 0.2s', backdropFilter: 'blur(8px)'
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.background = theme.cardHover; e.currentTarget.style.borderColor = `${cc}44` }}
+                        onMouseLeave={e => { e.currentTarget.style.background = theme.card; e.currentTarget.style.borderColor = theme.border }}
                       >
                         <Badge label={ioc.type} color={tc} />
-                        <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#4a6080', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ioc.value}</span>
-                        <Badge label={ioc.confidence} color={cc} />
-                        <span style={{ fontSize: 10, color: '#334155', minWidth: 120 }}>{ioc.malware || '—'}</span>
-                        <span style={{ fontSize: 9, color: '#1e3a5f', minWidth: 110, textAlign: 'right' }}>{ioc.source}</span>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: theme.textSecondary, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ioc.value}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 100 }}>
+                          <span style={{ width: 6, height: 6, borderRadius: '50%', background: cc }} />
+                          <span style={{ fontSize: 12, color: cc, fontWeight: 700 }}>{ioc.confidence}</span>
+                        </div>
+                        <span style={{ fontSize: 12, color: theme.textMuted, minWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ioc.malware || '—'}</span>
+                        <span style={{ fontSize: 11, color: theme.textMuted, minWidth: 100, textAlign: 'right' }}>{ioc.source}</span>
                       </div>
                     )
                   })}
-                  {results.total > results.results.length && (
-                    <div style={{ fontSize: 10, color: '#1e3a5f', textAlign: 'center', padding: 12 }}>
-                      Showing {results.results.length} of {results.total} — refine query for more specific results
-                    </div>
-                  )}
                 </div>
               )}
             </div>
           )}
 
           {!query && !results && (
-            <div style={{ textAlign: 'center', padding: '60px 0' }}>
-              <div style={{ fontSize: 40, marginBottom: 14, opacity: 0.3 }}>🔍</div>
-              <div style={{ fontSize: 12, color: '#1e3a5f' }}>Search across all live threat intelligence feeds</div>
+            <div style={{ textAlign: 'center', padding: '100px 0', opacity: 0.5 }}>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 40, marginBottom: 32 }}>
+                <div style={{ width: 40, height: 40, color: theme.primary }}><Icons.Shield /></div>
+                <div style={{ width: 40, height: 40, color: theme.accent }}><Icons.Activity /></div>
+                <div style={{ width: 40, height: 40, color: theme.secondary }}><Icons.Database /></div>
+              </div>
+              <div style={{ fontSize: 16, color: theme.textSecondary, fontWeight: 500 }}>Global OSINT Registry Explorer</div>
+              <div style={{ fontSize: 12, color: theme.textMuted, marginTop: 8 }}>Cross-reference indicators across all platform-integrated feeds</div>
             </div>
           )}
         </>
@@ -158,49 +169,71 @@ export default function Search() {
 
       {/* Bulk lookup */}
       {activeMode === 'bulk' && (
-        <div>
-          <div style={{ fontSize: 11, color: '#334155', marginBottom: 12 }}>
-            Paste up to 50 indicators (one per line) — IPs, domains, hashes, CVEs
+        <div style={{ animation: 'fadeIn 0.3s ease' }}>
+          <div style={{ fontSize: 12, color: theme.textMuted, marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>Input multiple indicators (one per line, max 50)</span>
+            <Badge label="Correlation Mode" color={theme.secondary} variant="outline" />
           </div>
           <textarea
             value={bulkInput}
             onChange={e => setBulkInput(e.target.value)}
-            placeholder={'192.168.1.1\nevil-domain.ru\nCVE-2023-44487\nabc123def456...'}
+            placeholder={'192.168.1.1\ncve-2023-1234\nevil-domain.ru\nd8e8f8...'}
             rows={8}
-            style={{ width: '100%', background: '#040c1a', border: '1px solid #0c1e36', borderRadius: 10, padding: '14px', color: '#c9d4e8', fontSize: 12, fontFamily: "'IBM Plex Mono', monospace", resize: 'vertical', lineHeight: 1.7 }}
+            style={{ 
+              width: '100%', background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 16, 
+              padding: '20px', color: theme.text, fontSize: 14, fontFamily: "var(--font-mono)", 
+              resize: 'vertical', lineHeight: 1.6, transition: 'all 0.2s', outline: 'none',
+              backdropFilter: 'blur(8px)'
+            }}
+            onFocus={e => e.target.style.borderColor = theme.secondary + '66'}
+            onBlur={e => e.target.style.borderColor = theme.border}
           />
           <button
             onClick={doBulkLookup}
             disabled={bulkLoading || !bulkInput.trim()}
-            style={{ marginTop: 10, padding: '10px 24px', background: '#0c1e36', border: '1px solid #1e3a5f', borderRadius: 8, color: '#00ffa3', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 8 }}
+            style={{ 
+              marginTop: 20, padding: '14px 32px', background: `linear-gradient(135deg, ${theme.secondary}, ${theme.primary})`, 
+              border: 'none', borderRadius: 12, color: theme.isDark ? theme.bg : '#fff', fontSize: 14, fontWeight: 700, 
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, transition: 'all 0.2s',
+              boxShadow: `0 8px 16px -4px ${theme.secondary}44`,
+              opacity: bulkLoading || !bulkInput.trim() ? 0.6 : 1
+            }}
+            onMouseEnter={e => { if (!bulkLoading) e.currentTarget.style.transform = 'translateY(-2px)' }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)' }}
           >
-            {bulkLoading ? <><Spinner size={14} /> Looking up...</> : 'Lookup Indicators →'}
+            {bulkLoading ? <Spinner size={16} color={theme.bg} /> : <Icons.Search />}
+            {bulkLoading ? 'ANALYZING MATRIX...' : 'ANALYZE INDICATORS'}
           </button>
 
           {bulkResults && (
-            <div style={{ marginTop: 20 }}>
-              <div style={{ fontSize: 10, color: '#1e3a5f', marginBottom: 12, fontFamily: 'monospace' }}>
-                Queried {bulkResults.queried} indicator{bulkResults.queried !== 1 ? 's' : ''}
+            <div style={{ marginTop: 40 }}>
+              <div style={{ fontSize: 12, color: theme.textMuted, marginBottom: 20, fontWeight: 600 }}>
+                ANALYSIS COMPLETE: {bulkResults.queried} RECORDS PROCESSED
               </div>
-              {Object.entries(bulkResults.results).map(([val, hits]) => (
-                <div key={val} style={{ marginBottom: 12, background: '#040c1a', border: '1px solid #08121e', borderRadius: 8, overflow: 'hidden' }}>
-                  <div style={{ padding: '10px 14px', borderBottom: '1px solid #08121e', display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#7a93b8', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{val}</span>
-                    <Badge label={hits.length > 0 ? `${hits.length} hit${hits.length > 1 ? 's' : ''}` : 'clean'} color={hits.length > 0 ? '#ef4444' : '#00ffa3'} />
-                  </div>
-                  {hits.map(ioc => (
-                    <div key={ioc.id} onClick={() => setSelectedIOC(ioc)}
-                      style={{ display: 'flex', gap: 10, alignItems: 'center', padding: '8px 14px', cursor: 'pointer', transition: 'background 0.15s' }}
-                      onMouseEnter={e => e.currentTarget.style.background = '#0a1628'}
-                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                      <Badge label={ioc.type} color={TYPE_COLOR[ioc.type] || '#94a3b8'} />
-                      <span style={{ fontSize: 10, color: '#475569', flex: 1 }}>{ioc.malware || ioc.source}</span>
-                      <Badge label={ioc.confidence} color={CONF_COLOR[ioc.confidence] || '#94a3b8'} />
-                      <span style={{ fontSize: 9, color: '#1e3a5f' }}>{ioc.source}</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {Object.entries(bulkResults.results).map(([val, hits]) => (
+                  <div key={val} style={{ background: theme.card, border: `1px solid ${hits.length > 0 ? theme.danger + '22' : theme.border}`, borderRadius: 12, overflow: 'hidden' }}>
+                    <div style={{ padding: '14px 20px', borderBottom: `1px solid ${theme.border}`, display: 'flex', alignItems: 'center', gap: 16, background: hits.length > 0 ? theme.danger + '05' : 'transparent' }}>
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: hits.length > 0 ? theme.danger : theme.textSecondary, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{val}</span>
+                      <Badge label={hits.length > 0 ? `${hits.length} HIT${hits.length > 1 ? 'S' : ''}` : 'NO MATCH'} color={hits.length > 0 ? theme.danger : theme.success} />
                     </div>
-                  ))}
-                </div>
-              ))}
+                    {hits.length > 0 && (
+                      <div style={{ padding: '8px 12px' }}>
+                        {hits.map(ioc => (
+                          <div key={ioc.id} onClick={() => setSelectedIOC(ioc)}
+                            style={{ display: 'flex', gap: 12, alignItems: 'center', padding: '10px 14px', borderRadius: 8, cursor: 'pointer', transition: 'background 0.2s' }}
+                            onMouseEnter={e => e.currentTarget.style.background = theme.bgAlt}
+                            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                            <Badge label={ioc.type} color={TYPE_COLOR(theme)[ioc.type] || theme.textMuted} />
+                            <span style={{ fontSize: 12, color: theme.textSecondary, flex: 1 }}>{ioc.malware || ioc.source}</span>
+                            <Badge label={ioc.confidence} color={CONF_COLOR(theme)[ioc.confidence] || theme.textMuted} variant="outline" />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>

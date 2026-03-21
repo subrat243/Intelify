@@ -1,11 +1,8 @@
-import { useState } from 'react'
 import { usePolling } from '../hooks/usePolling'
 import { api } from '../utils/api'
-import { Badge, Icons, SparkLine, AnimCounter, StatusDot, CONF_COLOR, TYPE_COLOR } from '../components/ui'
+import { Badge, Icons, SparkLine, AnimCounter, StatusDot, CONF_COLOR, TYPE_COLOR, useTheme, Spinner } from '../components/ui'
 
-const DONUT_COLORS = ['#00ffa3', '#f97316', '#a78bfa', '#fbbf24', '#ef4444', '#60a5fa', '#f472b6', '#34d399']
-
-function DonutChart({ data, colors }) {
+function DonutChart({ data, colors, theme }) {
   if (!data || Object.keys(data).length === 0) return null
   const entries = Object.entries(data).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1])
   const total = entries.reduce((a, [, v]) => a + v, 0)
@@ -26,20 +23,20 @@ function DonutChart({ data, colors }) {
   })
 
   return (
-    <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
-      <svg viewBox="0 0 100 100" width={110} height={110} style={{ flexShrink: 0 }}>
-        <circle cx="50" cy="50" r="26" fill="#02060f" />
+    <div style={{ display: 'flex', gap: 32, alignItems: 'center' }}>
+      <svg viewBox="0 0 100 100" width={110} height={110} style={{ flexShrink: 0, filter: theme.isDark ? 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' : 'none' }}>
+        <circle cx="50" cy="50" r="26" fill={theme.cardSolid} />
         {slices.map((s, i) => (
-          <path key={i} d={s.path} fill={s.color} opacity={0.88} />
+          <path key={i} d={s.path} fill={s.color} opacity={0.9} style={{ transition: 'all 0.3s' }} />
         ))}
       </svg>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-        {slices.map((s, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
+        {slices.slice(0, 6).map((s, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 8, height: 8, borderRadius: 2, background: s.color, flexShrink: 0 }} />
-            <span style={{ fontSize: 11, color: '#64748b', minWidth: 60 }}>{s.key}</span>
-            <span style={{ fontSize: 11, color: s.color, fontFamily: 'monospace' }}>{s.val.toLocaleString()}</span>
-            <span style={{ fontSize: 9, color: '#1e3a5f', fontFamily: 'monospace' }}>{(s.pct * 100).toFixed(1)}%</span>
+            <span style={{ fontSize: 12, color: theme.textSecondary, flex: 1 }}>{s.key}</span>
+            <span style={{ fontSize: 12, color: theme.text, fontWeight: 600, fontFamily: 'var(--font-mono)' }}>{(s.val ?? 0).toLocaleString()}</span>
+            <span style={{ fontSize: 10, color: theme.textMuted, fontFamily: 'var(--font-mono)', minWidth: 40, textAlign: 'right' }}>{(s.pct * 100).toFixed(0)}%</span>
           </div>
         ))}
       </div>
@@ -47,21 +44,31 @@ function DonutChart({ data, colors }) {
   )
 }
 
-function StatCard({ label, value, sub, icon: Icon, accent, spark }) {
+function StatCard({ label, value, sub, icon: Icon, accent, spark, theme }) {
   return (
-    <div style={{ background: '#040c1a', border: `1px solid ${accent}20`, borderRadius: 12, padding: '18px 20px', position: 'relative', overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', top: 0, right: 0, width: 80, height: 80, background: `radial-gradient(circle at 100% 0%, ${accent}12 0%, transparent 70%)` }} />
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-        <span style={{ fontSize: 9, color: '#1e3a5f', letterSpacing: '0.14em', textTransform: 'uppercase' }}>{label}</span>
-        <div style={{ color: accent, width: 17, height: 17, opacity: 0.7 }}><Icon /></div>
+    <div style={{ 
+      background: theme.card, 
+      border: `1px solid ${theme.border}`, 
+      borderRadius: 16, 
+      padding: '24px', 
+      position: 'relative', 
+      overflow: 'hidden',
+      transition: 'transform 0.2s, border-color 0.2s',
+      cursor: 'default',
+      backdropFilter: 'blur(8px)'
+    }} onMouseEnter={e => { e.currentTarget.style.borderColor = `${accent}66`; e.currentTarget.style.transform = 'translateY(-2px)' }} onMouseLeave={e => { e.currentTarget.style.borderColor = theme.border; e.currentTarget.style.transform = 'translateY(0)' }}>
+      <div style={{ position: 'absolute', top: 0, right: 0, width: 100, height: 100, background: `radial-gradient(circle at 100% 0%, ${accent}${theme.isDark ? '10' : '08'} 0%, transparent 70%)` }} />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <span style={{ fontSize: 12, color: theme.textMuted, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>{label}</span>
+        <div style={{ color: accent, width: 20, height: 20, opacity: 0.8 }}><Icon /></div>
       </div>
-      <div style={{ fontSize: 28, fontWeight: 700, color: '#f1f5f9', fontFamily: "'IBM Plex Mono', monospace", letterSpacing: '-0.02em' }}>
+      <div style={{ fontSize: 32, fontWeight: 700, color: theme.text, fontFamily: 'var(--font-mono)', letterSpacing: '-0.04em' }}>
         {typeof value === 'number' ? <AnimCounter target={value} /> : value}
       </div>
-      {sub && <div style={{ fontSize: 10, color: accent, marginTop: 4, opacity: 0.8 }}>{sub}</div>}
+      {sub && <div style={{ fontSize: 11, color: theme.textSecondary, marginTop: 6, display: 'flex', alignItems: 'center', gap: 6 }}>{sub}</div>}
       {spark && (
-        <div style={{ marginTop: 8 }}>
-          <SparkLine data={spark} color={accent} height={28} width={140} />
+        <div style={{ marginTop: 16, opacity: 0.8 }}>
+          <SparkLine data={spark} color={accent} height={32} width={180} />
         </div>
       )}
     </div>
@@ -69,105 +76,110 @@ function StatCard({ label, value, sub, icon: Icon, accent, spark }) {
 }
 
 export default function Dashboard() {
+  const { theme } = useTheme()
   const { data: stats, loading, error, refetch } = usePolling(api.getStats, 15000)
   const { data: feeds } = usePolling(api.getFeeds, 15000)
 
+  const DONUT_COLORS = [theme.accent, '#f97316', '#818cf8', '#fbbf24', theme.danger, '#60a5fa', '#f472b6', theme.success]
+
   if (loading) return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 300, gap: 12, color: '#1e3a5f', fontSize: 12 }}>
-      <div style={{ width: 22, height: 22, border: '2px solid #0c1e36', borderTopColor: '#00ffa3', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-      Loading threat intelligence...
+    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 400, gap: 16 }}>
+      <Spinner size={32} />
+      <span style={{ fontSize: 13, color: theme.textMuted, fontWeight: 500 }}>Initializing intelligence matrix...</span>
     </div>
   )
 
   if (error) return (
-    <div style={{ padding: 40, textAlign: 'center' }}>
-      <div style={{ fontSize: 12, color: '#ef4444', marginBottom: 12 }}>⚠ Cannot reach backend — is the API server running?</div>
-      <div style={{ fontSize: 10, color: '#334155', fontFamily: 'monospace', marginBottom: 16 }}>{error}</div>
-      <button onClick={refetch} style={{ padding: '8px 20px', background: '#040c1a', border: '1px solid #1e3a5f', borderRadius: 7, color: '#64748b', fontSize: 11, cursor: 'pointer' }}>Retry</button>
+    <div style={{ padding: 60, textAlign: 'center', background: theme.card, borderRadius: 16, border: `1px solid ${theme.danger}22` }}>
+      <div style={{ fontSize: 14, color: theme.danger, marginBottom: 16, fontWeight: 600 }}>⚠ NETWORK ADVERSITY DETECTED</div>
+      <div style={{ fontSize: 11, color: theme.textMuted, fontFamily: 'var(--font-mono)', marginBottom: 24 }}>{error}</div>
+      <button onClick={refetch} style={{ padding: '10px 24px', background: `${theme.danger}11`, border: `1px solid ${theme.danger}33`, borderRadius: 8, color: theme.danger, fontSize: 12, fontWeight: 600 }}>RETRY CONNECTION</button>
     </div>
   )
 
-  const totalActors = stats?.by_source ? Object.entries(stats.by_source).sort((a, b) => b[1] - a[1]) : []
+  const topSources = stats?.by_source ? Object.entries(stats.by_source).sort((a, b) => b[1] - a[1]).slice(0, 8) : []
 
   return (
-    <div style={{ animation: 'fadeIn 0.3s ease' }}>
+    <div style={{ animation: 'fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)' }}>
       {/* Stat cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20, marginBottom: 24 }}>
         <StatCard
-          label="Total IOCs" value={stats?.total ?? 0}
-          sub={`${stats?.feeds_online ?? 0}/${stats?.feeds_total ?? 0} feeds online`}
-          icon={Icons.Shield} accent="#00ffa3" spark={stats?.ingestion_history}
+          theme={theme}
+          label="Total Indicators" value={stats?.total ?? 0}
+          sub={<><StatusDot status="ok" /> {stats?.feeds_online ?? 0} active sources</>}
+          icon={Icons.Shield} accent={theme.primary} spark={stats?.ingestion_history}
         />
         <StatCard
-          label="Critical IOCs" value={stats?.critical ?? 0}
-          sub="Immediate action required"
-          icon={Icons.AlertTriangle} accent="#ef4444"
+          theme={theme}
+          label="Critical Threats" value={stats?.critical ?? 0}
+          sub="Immediate mitigation required"
+          icon={Icons.AlertTriangle} accent={theme.danger}
         />
         <StatCard
+          theme={theme}
           label="High Severity" value={stats?.high ?? 0}
-          sub="Investigate promptly"
-          icon={Icons.Zap} accent="#f97316"
+          sub="Priority investigation"
+          icon={Icons.Zap} accent={theme.warning}
         />
         <StatCard
-          label="Feeds Online" value={`${stats?.feeds_online ?? 0}/${stats?.feeds_total ?? 0}`}
-          sub={stats?.last_updated ? `Updated ${new Date(stats.last_updated).toLocaleTimeString()}` : ''}
-          icon={Icons.Database} accent="#60a5fa"
+          theme={theme}
+          label="Network Health" value={`${stats?.feeds_online ?? 0}/${stats?.feeds_total ?? 0}`}
+          sub={stats?.last_updated ? `Sync: ${new Date(stats.last_updated).toLocaleTimeString()}` : ''}
+          icon={Icons.Database} accent={theme.accent}
         />
       </div>
 
-      {/* Charts row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
-        {/* IOC Type Distribution */}
-        <div style={{ background: '#040c1a', border: '1px solid #0a1628', borderRadius: 12, padding: 22 }}>
-          <div style={{ fontSize: 10, color: '#1e3a5f', letterSpacing: '0.14em', marginBottom: 18 }}>IOC TYPE DISTRIBUTION</div>
-          <DonutChart data={stats?.by_type} colors={DONUT_COLORS} />
+      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 20, marginBottom: 24 }}>
+        {/* Total Ingestion */}
+        <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 16, padding: 28, backdropFilter: 'blur(8px)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+            <div>
+              <div style={{ fontSize: 12, color: theme.textMuted, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>Ingestion Velocity</div>
+              <div style={{ fontSize: 10, color: theme.textMuted, marginTop: 4 }}>Indicators sampled across all active feeds</div>
+            </div>
+            <Badge label="Real-time" color={theme.accent} variant="outline" />
+          </div>
+          <SparkLine data={stats?.ingestion_history ?? []} color={theme.accent} height={120} width={600} />
         </div>
 
-        {/* Ingestion timeline */}
-        <div style={{ background: '#040c1a', border: '1px solid #0a1628', borderRadius: 12, padding: 22 }}>
-          <div style={{ fontSize: 10, color: '#1e3a5f', letterSpacing: '0.14em', marginBottom: 6 }}>TOTAL IOC COUNT — ROLLING HISTORY</div>
-          <div style={{ fontSize: 9, color: '#0c1e36', marginBottom: 16 }}>Sampled every 15s since startup</div>
-          <SparkLine data={stats?.ingestion_history ?? []} color="#00ffa3" height={80} width={320} />
+        {/* IOC Type Distribution */}
+        <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 16, padding: 28, backdropFilter: 'blur(8px)' }}>
+          <div style={{ fontSize: 12, color: theme.textMuted, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: 24 }}>Indicator Distribution</div>
+          <DonutChart data={stats?.by_type} colors={DONUT_COLORS} theme={theme} />
         </div>
       </div>
 
-      {/* Source breakdown */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-        {/* By source */}
-        <div style={{ background: '#040c1a', border: '1px solid #0a1628', borderRadius: 12, padding: 22 }}>
-          <div style={{ fontSize: 10, color: '#1e3a5f', letterSpacing: '0.14em', marginBottom: 16 }}>IOCs BY SOURCE</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
-            {totalActors.map(([source, count], i) => {
-              const max = totalActors[0]?.[1] ?? 1
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+        {/* Source breakdown */}
+        <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 16, padding: 28, backdropFilter: 'blur(8px)' }}>
+          <div style={{ fontSize: 12, color: theme.textMuted, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: 20 }}>Intelligence Sources</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {topSources.map(([source, count], i) => {
+              const max = topSources[0]?.[1] ?? 1
               return (
-                <div key={source} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ fontSize: 10, color: '#334155', minWidth: 14, textAlign: 'right', fontFamily: 'monospace' }}>{i + 1}</span>
-                  <span style={{ fontSize: 11, color: '#64748b', minWidth: 140 }}>{source}</span>
-                  <div style={{ flex: 1, height: 5, background: '#0a1628', borderRadius: 3, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${(count / max) * 100}%`, background: DONUT_COLORS[i % DONUT_COLORS.length], borderRadius: 3, transition: 'width 1s ease' }} />
+                <div key={source} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <span style={{ fontSize: 12, color: theme.textSecondary, minWidth: 150 }}>{source}</span>
+                  <div style={{ flex: 1, height: 6, background: theme.isDark ? theme.bg : theme.bgAlt, borderRadius: 3, overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${(count / max) * 100}%`, background: `linear-gradient(90deg, ${DONUT_COLORS[i % DONUT_COLORS.length]}dd, ${DONUT_COLORS[i % DONUT_COLORS.length]})`, borderRadius: 3, transition: 'width 1.2s cubic-bezier(0.16, 1, 0.3, 1)' }} />
                   </div>
-                  <span style={{ fontSize: 10, color: '#475569', fontFamily: 'monospace', minWidth: 40, textAlign: 'right' }}>{count.toLocaleString()}</span>
+                  <span style={{ fontSize: 12, color: theme.text, fontWeight: 600, fontFamily: 'var(--font-mono)', minWidth: 50, textAlign: 'right' }}>{(count ?? 0).toLocaleString()}</span>
                 </div>
               )
             })}
           </div>
         </div>
 
-        {/* Feed health */}
-        <div style={{ background: '#040c1a', border: '1px solid #0a1628', borderRadius: 12, padding: 22 }}>
-          <div style={{ fontSize: 10, color: '#1e3a5f', letterSpacing: '0.14em', marginBottom: 16 }}>FEED HEALTH</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {(feeds ?? []).map(feed => (
-              <div key={feed.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        {/* Feed health summary */}
+        <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 16, padding: 28, backdropFilter: 'blur(8px)' }}>
+          <div style={{ fontSize: 12, color: theme.textMuted, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: 20 }}>Infrastructure Radar</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            {(feeds ?? []).slice(0, 8).map(feed => (
+              <div key={feed.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: `${theme.bg}66`, borderRadius: 12, border: `1px solid ${theme.borderLight}` }}>
                 <StatusDot status={feed.status} />
-                <span style={{ fontSize: 11, color: '#64748b', flex: 1 }}>{feed.name}</span>
-                <span style={{ fontSize: 10, color: '#334155', fontFamily: 'monospace' }}>
-                  {feed.ioc_count > 0 ? feed.ioc_count.toLocaleString() : '—'}
-                </span>
-                <Badge
-                  label={feed.status}
-                  color={feed.status === 'ok' ? '#00ffa3' : feed.status === 'loading' ? '#fbbf24' : feed.status === 'error' ? '#ef4444' : '#334155'}
-                />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 12, color: theme.text, fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{feed.name}</div>
+                  <div style={{ fontSize: 10, color: theme.textMuted, fontFamily: 'var(--font-mono)' }}>{(feed.ioc_count ?? 0).toLocaleString()} indicators</div>
+                </div>
               </div>
             ))}
           </div>
