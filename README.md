@@ -62,18 +62,18 @@ All feeds are **free** and **require no API key**.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        React Frontend                        │
+│                        React Frontend                       │
 │   Dashboard · Live Feed · IOC Search · Feed Management      │
 └──────────────────────┬──────────────────────────────────────┘
                        │ HTTP /api/v1/*
 ┌──────────────────────▼──────────────────────────────────────┐
-│                   FastAPI Backend                            │
+│                   FastAPI Backend                           │
 │   /iocs  /feeds  /stats  /search                            │
-│                                                              │
+│                                                             │
 │   FeedManager (asyncio background tasks)                    │
-│   ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐      │
-│   │  Feodo   │ │ URLhaus  │ │ThreatFox │ │ Bazaar   │ ...  │
-│   └──────────┘ └──────────┘ └──────────┘ └──────────┘      │
+│   ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐       │
+│   │  Feodo   │ │ URLhaus  │ │ThreatFox │ │ Bazaar   │ ...   │
+│   └──────────┘ └──────────┘ └──────────┘ └──────────┘       │
 └─────────────────────────────────────────────────────────────┘
          │ aiohttp async fetches to public feed URLs
          ▼

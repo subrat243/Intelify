@@ -54,15 +54,21 @@ export default function Search() {
   return (
     <div style={{ animation: 'fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)', maxWidth: 800, margin: '0 auto' }}>
       {/* Tab toggle */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 32, background: theme.bgAlt, padding: 6, borderRadius: 12, width: 'fit-content', border: `1px solid ${theme.border}` }}>
+      <div style={{ 
+        display: 'flex', gap: 4, marginBottom: 32, 
+        background: theme.bgAlt, padding: 4, borderRadius: 14, 
+        width: 'fit-content', border: `1px solid ${theme.border}`,
+        boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)'
+      }}>
         {[['single', 'Intelligence Search'], ['bulk', 'Bulk Correlation']].map(([mode, label]) => (
           <button key={mode} onClick={() => setActiveMode(mode)} style={{
-            padding: '8px 24px', 
+            padding: '10px 24px', 
             background: activeMode === mode ? theme.cardSolid : 'transparent',
-            border: `1px solid ${activeMode === mode ? theme.border : 'transparent'}`, 
-            borderRadius: 8,
+            border: 'none',
+            borderRadius: 10,
             color: activeMode === mode ? theme.accent : theme.textMuted,
-            fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s',
+            fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            boxShadow: activeMode === mode ? `0 4px 12px ${theme.isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.05)'}` : 'none',
           }}>{label}</button>
         ))}
       </div>
@@ -170,39 +176,68 @@ export default function Search() {
       {/* Bulk lookup */}
       {activeMode === 'bulk' && (
         <div style={{ animation: 'fadeIn 0.3s ease' }}>
-          <div style={{ fontSize: 12, color: theme.textMuted, marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>Input multiple indicators (one per line, max 50)</span>
-            <Badge label="Correlation Mode" color={theme.secondary} variant="outline" />
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: theme.textSecondary }}>Indicator Matrix</h3>
+              <Badge label="CORRELATION MODE" color={theme.secondary} variant="solid" />
+            </div>
+            <p style={{ fontSize: 13, color: theme.textMuted }}>Input multiple indicators (one per line, max 50) for cross-registry analysis.</p>
           </div>
-          <textarea
-            value={bulkInput}
-            onChange={e => setBulkInput(e.target.value)}
-            placeholder={'192.168.1.1\ncve-2023-1234\nevil-domain.ru\nd8e8f8...'}
-            rows={8}
-            style={{ 
-              width: '100%', background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 16, 
-              padding: '20px', color: theme.text, fontSize: 14, fontFamily: "var(--font-mono)", 
-              resize: 'vertical', lineHeight: 1.6, transition: 'all 0.2s', outline: 'none',
-              backdropFilter: 'blur(8px)'
-            }}
-            onFocus={e => e.target.style.borderColor = theme.secondary + '66'}
-            onBlur={e => e.target.style.borderColor = theme.border}
-          />
+          
+          <div style={{ position: 'relative' }}>
+            <textarea
+              value={bulkInput}
+              onChange={e => setBulkInput(e.target.value)}
+              placeholder={'192.168.1.1\ncve-2023-1234\nevil-domain.ru\nd8e8f8...'}
+              rows={10}
+              style={{ 
+                width: '100%', background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 20, 
+                padding: '24px', color: theme.text, fontSize: 14, fontFamily: "var(--font-mono)", 
+                resize: 'none', lineHeight: 1.7, transition: 'all 0.3s ease', outline: 'none',
+                backdropFilter: 'blur(12px)',
+                boxShadow: theme.isDark ? 'inset 0 2px 8px rgba(0,0,0,0.2)' : 'inset 0 2px 4px rgba(0,0,0,0.02)'
+              }}
+              onFocus={e => {
+                e.target.style.borderColor = theme.secondary + '88';
+                e.target.style.boxShadow = `0 0 0 4px ${theme.secondary}15, inset 0 2px 8px rgba(0,0,0,0.1)`;
+              }}
+              onBlur={e => {
+                e.target.style.borderColor = theme.border;
+                e.target.style.boxShadow = theme.isDark ? 'inset 0 2px 8px rgba(0,0,0,0.2)' : 'inset 0 2px 4px rgba(0,0,0,0.02)';
+              }}
+            />
+          </div>
+
           <button
             onClick={doBulkLookup}
             disabled={bulkLoading || !bulkInput.trim()}
             style={{ 
-              marginTop: 20, padding: '14px 32px', background: `linear-gradient(135deg, ${theme.secondary}, ${theme.primary})`, 
-              border: 'none', borderRadius: 12, color: theme.isDark ? theme.bg : '#fff', fontSize: 14, fontWeight: 700, 
-              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, transition: 'all 0.2s',
-              boxShadow: `0 8px 16px -4px ${theme.secondary}44`,
-              opacity: bulkLoading || !bulkInput.trim() ? 0.6 : 1
+              marginTop: 24, padding: '16px 40px', 
+              background: `linear-gradient(135deg, ${theme.secondary}, ${theme.primary})`, 
+              border: 'none', borderRadius: 16, 
+              color: theme.isDark ? theme.bg : '#fff', 
+              fontSize: 15, fontWeight: 800, letterSpacing: '0.02em',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, 
+              transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+              boxShadow: `0 12px 24px -8px ${theme.secondary}66`,
+              opacity: bulkLoading || !bulkInput.trim() ? 0.5 : 1,
+              width: 'fit-content'
             }}
-            onMouseEnter={e => { if (!bulkLoading) e.currentTarget.style.transform = 'translateY(-2px)' }}
-            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)' }}
+            onMouseEnter={e => { 
+              if (!bulkLoading && bulkInput.trim()) {
+                e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
+                e.currentTarget.style.boxShadow = `0 16px 32px -8px ${theme.secondary}88`;
+              }
+            }}
+            onMouseLeave={e => { 
+              e.currentTarget.style.transform = 'translateY(0) scale(1)';
+              e.currentTarget.style.boxShadow = `0 12px 24px -8px ${theme.secondary}66`;
+            }}
           >
-            {bulkLoading ? <Spinner size={16} color={theme.bg} /> : <Icons.Search />}
-            {bulkLoading ? 'ANALYZING MATRIX...' : 'ANALYZE INDICATORS'}
+            <div style={{ width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {bulkLoading ? <Spinner size={18} color={theme.bg} /> : <Icons.Activity />}
+            </div>
+            <span>{bulkLoading ? 'ANALYZING MATRIX...' : 'ANALYZE INDICATORS'}</span>
           </button>
 
           {bulkResults && (
