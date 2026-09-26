@@ -335,21 +335,7 @@ class FeedManager:
                 iocs = []
 
             self._iocs[feed_id] = iocs
-            for ioc in iocs:
-                key = self._canonical_key(ioc.type.value, ioc.value)
-                existing = self._ioc_registry.get(key)
-                if existing is None:
-                    self._ioc_registry[key] = ioc
-                    continue
-                existing.sources = sorted(set(existing.sources or [existing.source]) | set(ioc.sources or [ioc.source]))
-                existing.tags = sorted(set(existing.tags) | set(ioc.tags))
-                existing.last_seen = datetime.utcnow().isoformat()
-                existing.fetched_at = ioc.fetched_at
-                if ioc.score > existing.score:
-                    existing.score = ioc.score
-                    existing.confidence = ioc.confidence
-                if ioc.description:
-                    existing.description = ioc.description
+            self._merge_iocs(iocs)
             fi.status = FeedStatus.OK
             fi.ioc_count = len(iocs)
             fi.last_fetch = datetime.utcnow()
@@ -409,6 +395,23 @@ class FeedManager:
 
     def get_ingestion_history(self) -> List[int]:
         return self._ingestion_history
+
+    def _merge_iocs(self, iocs: List[IOC]) -> None:
+        for ioc in iocs:
+            key = self._canonical_key(ioc.type.value, ioc.value)
+            existing = self._ioc_registry.get(key)
+            if existing is None:
+                self._ioc_registry[key] = ioc
+                continue
+            existing.sources = sorted(set(existing.sources or [existing.source]) | set(ioc.sources or [ioc.source]))
+            existing.tags = sorted(set(existing.tags) | set(ioc.tags))
+            existing.last_seen = datetime.utcnow().isoformat()
+            existing.fetched_at = ioc.fetched_at
+            if ioc.score > existing.score:
+                existing.score = ioc.score
+                existing.confidence = ioc.confidence
+            if ioc.description:
+                existing.description = ioc.description
 
     # ── Helpers ───────────────────────────────────────────────────────────────
 
