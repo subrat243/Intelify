@@ -23,8 +23,8 @@ function DonutChart({ data, colors, theme }) {
   })
 
   return (
-    <div style={{ display: 'flex', gap: 32, alignItems: 'center' }}>
-      <svg viewBox="0 0 100 100" width={110} height={110} style={{ flexShrink: 0 }}>
+    <div style={{ display: 'flex', gap: 36, alignItems: 'center', justifyContent: 'center', flex: 1, minHeight: 240 }}>
+      <svg viewBox="0 0 100 100" width={170} height={170} style={{ flexShrink: 0 }}>
         <circle cx="50" cy="50" r="26" fill={theme.cardSolid} />
         {slices.map((s, i) => (
           <path key={i} d={s.path} fill={s.color} opacity={0.9} style={{ transition: 'all 0.3s' }} />
@@ -145,7 +145,7 @@ export default function Dashboard() {
 
       <div className="dashboard-chart-grid" style={{ display: 'grid', gap: 20, marginBottom: 24 }}>
         {/* Total Ingestion */}
-        <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 12, padding: 24, boxShadow: '0 6px 18px rgba(32,44,70,0.04)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 12, padding: 24, boxShadow: '0 6px 18px rgba(32,44,70,0.04)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
             <div>
               <div style={{ fontSize: 12, color: theme.text, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}>Ingestion activity</div>
