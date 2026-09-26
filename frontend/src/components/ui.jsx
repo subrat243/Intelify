@@ -81,7 +81,7 @@ export function GlyphMatrix({ glyphs = '01.+*/\\<>=' , cellSize = 14, mutationRa
         for (let column = 0; column < columns; column += 1) {
           const index = row * columns + column
           if (Math.random() < mutationRate) cells[index] = Math.random()
-          const opacity = (0.18 + cells[index] * 0.55) * fade
+          const opacity = (0.3 + cells[index] * 0.7) * fade
           const glyph = glyphs[Math.floor(cells[index] * glyphs.length)] || glyphs[0]
           context.fillStyle = `${color}${Math.floor(opacity * 255).toString(16).padStart(2, '0')}`
           context.fillText(glyph, column * cellSize, row * cellSize)

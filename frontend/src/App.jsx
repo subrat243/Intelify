@@ -117,7 +117,7 @@ function AppLayout() {
     <ThemeContext.Provider value={{ theme }}>
       <style>{GLOBAL_STYLES}</style>
       <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100vh', background: theme.bg, overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', inset: 0, opacity: 0.12, pointerEvents: 'none', zIndex: 0 }}>
+        <div style={{ position: 'absolute', inset: 0, opacity: 0.28, pointerEvents: 'none', zIndex: 0 }}>
           <GlyphMatrix glyphs="01.+*/\\<>=" cellSize={14} mutationRate={0.04} interval={90} fadeBottom={0.6} color="#60758c" />
         </div>
         {/* ── Sidebar ───────────────────────────────────────────────────── */}
