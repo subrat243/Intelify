@@ -24,7 +24,7 @@ export default function LiveFeed() {
 
   const pollRef = useRef(null)
 
-  const fetchIOCs = useCallback(async (p = page) => {
+  const fetchIOCs = useCallback(async (p = 1) => {
     try {
       setError(null)
       const data = await api.getIOCs({ type: typeFilter, confidence: confFilter, source: sourceFilter, page: p, limit: 50 })
@@ -44,7 +44,7 @@ export default function LiveFeed() {
       setError(e.message)
       setLoading(false)
     }
-  }, [typeFilter, confFilter, sourceFilter, page])
+  }, [typeFilter, confFilter, sourceFilter])
 
   useEffect(() => {
     setLoading(true)
@@ -223,7 +223,7 @@ export default function LiveFeed() {
               &lt;
             </button>
             {visiblePages.map(p => (
-              <button key={p} onClick={() => { setPage(p); fetchIOCs(p) }} style={{
+              <button key={p} onClick={() => setPage(p)} style={{
                 minWidth: 32, height: 32, borderRadius: 8,
                 background: page === p ? theme.primary + '11' : theme.card,
                 border: `1px solid ${page === p ? theme.primary + '44' : theme.border}`,
