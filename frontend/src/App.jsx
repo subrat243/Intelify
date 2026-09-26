@@ -191,7 +191,7 @@ function AppLayout() {
         <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           {/* Page content */}
           <div style={{ flex: 1, overflowY: 'auto', padding: '32px' }}>
-            <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+            <div style={{ width: '100%', maxWidth: 1440, margin: '0 auto' }}>
               <Routes>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/live" element={<LiveFeed />} />
