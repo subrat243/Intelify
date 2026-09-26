@@ -213,7 +213,10 @@ class FeedManager:
                 continue
             if len(row) < 5:
                 continue
-            raw_type = row[2].strip().lower() if len(row) > 2 else ""
+            value = row[2].strip() if len(row) > 2 else ""
+            raw_type = row[3].strip().lower() if len(row) > 3 else ""
+            if not value or len(value) < 4:
+                continue
             ioc_type = IOCType.IP
             if "url" in raw_type:
                 ioc_type = IOCType.URL
@@ -221,24 +224,30 @@ class FeedManager:
                 ioc_type = IOCType.DOMAIN
             elif "sha256" in raw_type or "md5" in raw_type or "sha1" in raw_type:
                 ioc_type = IOCType.HASH
-            value = row[3].strip() if len(row) > 3 else ""
-            if not value or len(value) < 4:
+            elif "email" in raw_type:
+                ioc_type = IOCType.EMAIL
+            port = None
+            if raw_type == "ip:port" and ":" in value:
+                value, port = value.rsplit(":", 1)
+            if ioc_type == IOCType.IP and not self._is_valid_ip(value):
                 continue
             try:
-                score = int(row[7].strip()) if len(row) > 7 else 50
+                score = int(row[9].strip()) if len(row) > 9 else 50
             except ValueError:
                 score = 50
             conf = Confidence.CRITICAL if score > 75 else Confidence.HIGH if score > 50 else Confidence.MEDIUM
+            tags = [tag.strip() for tag in (row[6] if len(row) > 6 else "").split(",") if tag.strip() and tag.strip() != "None"]
             iocs.append(IOC(
                 id=self._make_id(feed_id, value),
                 type=ioc_type,
                 value=value,
                 confidence=conf,
                 score=score,
-                malware=row[4].strip() if len(row) > 4 else "Unknown",
+                port=port,
+                malware=row[5].strip() if len(row) > 5 else "Unknown",
                 source="ThreatFox",
                 sources=["ThreatFox"],
-                tags=[row[4].strip(), raw_type][:4] if row[4].strip() else [raw_type],
+                tags=(tags + [raw_type])[:4],
                 first_seen=row[0].strip() if row else None,
             ))
         return _limit_iocs(iocs)

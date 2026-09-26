@@ -53,6 +53,16 @@ class FeedManagerTests(unittest.TestCase):
 
         self.assertEqual([ioc.value for ioc in parsed], ["https://phishing.example/a", "http://phishing.example/b"])
 
+    def test_threatfox_parser_uses_current_value_and_type_columns(self):
+        text = '# header\n"2026-09-26 12:00:00","123","185.1.2.3:443","ip:port","botnet_cc","qakbot","Qbot","desc","2026-09-26 12:00:00","75"\n'
+
+        parsed = self.manager._parse_threatfox(text, "threatfox")
+
+        self.assertEqual(len(parsed), 1)
+        self.assertEqual(parsed[0].value, "185.1.2.3")
+        self.assertEqual(parsed[0].port, "443")
+        self.assertEqual(parsed[0].type, IOCType.IP)
+
 
 if __name__ == "__main__":
     unittest.main()
