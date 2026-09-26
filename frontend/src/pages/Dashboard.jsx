@@ -29,6 +29,8 @@ function DonutChart({ data, colors, theme }) {
         {slices.map((s, i) => (
           <path key={i} d={s.path} fill={s.color} opacity={0.9} style={{ transition: 'all 0.3s' }} />
         ))}
+        <text x="50" y="48" textAnchor="middle" fill={theme.text} fontSize="9" fontWeight="700">{total.toLocaleString()}</text>
+        <text x="50" y="57" textAnchor="middle" fill={theme.textMuted} fontSize="4.5">TOTAL IOCs</text>
       </svg>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
         {slices.slice(0, 6).map((s, i) => (
@@ -49,13 +51,14 @@ function StatCard({ label, value, sub, icon: Icon, accent, spark, theme }) {
     <div style={{ 
       background: theme.card, 
       border: `1px solid ${theme.border}`, 
-      borderRadius: 16, 
-      padding: '24px', 
+      borderRadius: 12,
+      padding: '20px',
+      minHeight: 148,
       position: 'relative', 
       overflow: 'hidden',
       transition: 'transform 0.2s, border-color 0.2s',
       cursor: 'default',
-      backdropFilter: 'blur(8px)'
+      boxShadow: '0 6px 18px rgba(32,44,70,0.04)'
     }} onMouseEnter={e => { e.currentTarget.style.borderColor = `${accent}66`; e.currentTarget.style.transform = 'translateY(-2px)' }} onMouseLeave={e => { e.currentTarget.style.borderColor = theme.border; e.currentTarget.style.transform = 'translateY(0)' }}>
       <div style={{ position: 'absolute', top: 0, right: 0, width: 100, height: 100, background: `radial-gradient(circle at 100% 0%, ${accent}08 0%, transparent 70%)` }} />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
@@ -98,9 +101,20 @@ export default function Dashboard() {
   )
 
   const topSources = stats?.by_source ? Object.entries(stats.by_source).sort((a, b) => b[1] - a[1]).slice(0, 8) : []
+  const latestIngestion = stats?.ingestion_history?.at(-1) ?? 0
+  const lastUpdated = stats?.last_updated ? new Date(stats.last_updated).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Waiting'
 
   return (
     <div style={{ animation: 'fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', gap: 20, marginBottom: 24, flexWrap: 'wrap' }}>
+        <div>
+          <div style={{ fontSize: 22, color: theme.text, fontWeight: 700, letterSpacing: '-0.02em' }}>Intelligence overview</div>
+          <div style={{ fontSize: 12, color: theme.textMuted, marginTop: 5 }}>Live visibility across your connected threat intelligence sources.</div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: theme.textMuted, fontSize: 11, fontFamily: 'var(--font-mono)' }}>
+          <StatusDot status="ok" /> Updated {lastUpdated}
+        </div>
+      </div>
       {/* Stat cards */}
       <div className="dashboard-stat-grid" style={{ display: 'grid', gap: 20, marginBottom: 24 }}>
         <StatCard
@@ -131,28 +145,31 @@ export default function Dashboard() {
 
       <div className="dashboard-chart-grid" style={{ display: 'grid', gap: 20, marginBottom: 24 }}>
         {/* Total Ingestion */}
-        <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 16, padding: 28, backdropFilter: 'blur(8px)' }}>
+        <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 12, padding: 24, boxShadow: '0 6px 18px rgba(32,44,70,0.04)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
             <div>
-              <div style={{ fontSize: 12, color: theme.textMuted, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>Ingestion Velocity</div>
-              <div style={{ fontSize: 10, color: theme.textMuted, marginTop: 4 }}>Indicators sampled across all active feeds</div>
+              <div style={{ fontSize: 12, color: theme.text, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}>Ingestion activity</div>
+              <div style={{ fontSize: 11, color: theme.textMuted, marginTop: 4 }}>Current retained indicators: <strong style={{ color: theme.text }}>{latestIngestion.toLocaleString()}</strong></div>
             </div>
             <Badge label="Real-time" color={theme.accent} variant="outline" />
           </div>
-          <SparkLine data={stats?.ingestion_history ?? []} color={theme.accent} height={120} width={600} />
+          <div style={{ minHeight: 120, display: 'flex', alignItems: 'end', overflow: 'hidden' }}>
+            <SparkLine data={stats?.ingestion_history ?? []} color={theme.accent} height={120} width={600} />
+          </div>
         </div>
 
         {/* IOC Type Distribution */}
-        <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 16, padding: 28, backdropFilter: 'blur(8px)' }}>
-          <div style={{ fontSize: 12, color: theme.textMuted, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: 24 }}>Indicator Distribution</div>
+        <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 12, padding: 24, boxShadow: '0 6px 18px rgba(32,44,70,0.04)' }}>
+          <div style={{ fontSize: 12, color: theme.text, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: 24 }}>Indicator distribution</div>
           <DonutChart data={stats?.by_type} colors={DONUT_COLORS} theme={theme} />
         </div>
       </div>
 
       <div className="dashboard-detail-grid" style={{ display: 'grid', gap: 20 }}>
         {/* Source breakdown */}
-        <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 16, padding: 28, backdropFilter: 'blur(8px)' }}>
-          <div style={{ fontSize: 12, color: theme.textMuted, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: 20 }}>Intelligence Sources</div>
+        <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 12, padding: 24, boxShadow: '0 6px 18px rgba(32,44,70,0.04)' }}>
+          <div style={{ fontSize: 12, color: theme.text, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: 6 }}>Intelligence sources</div>
+          <div style={{ fontSize: 11, color: theme.textMuted, marginBottom: 20 }}>Records currently retained by source.</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {topSources.map(([source, count], i) => {
               const max = topSources[0]?.[1] ?? 1
@@ -170,10 +187,11 @@ export default function Dashboard() {
         </div>
 
         {/* Feed health summary */}
-        <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 16, padding: 28, backdropFilter: 'blur(8px)' }}>
-          <div style={{ fontSize: 12, color: theme.textMuted, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: 20 }}>Infrastructure Radar</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            {(feeds ?? []).slice(0, 8).map(feed => (
+        <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 12, padding: 24, boxShadow: '0 6px 18px rgba(32,44,70,0.04)' }}>
+          <div style={{ fontSize: 12, color: theme.text, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: 6 }}>Infrastructure health</div>
+          <div style={{ fontSize: 11, color: theme.textMuted, marginBottom: 20 }}>Connection status across all configured sources.</div>
+          <div className="dashboard-feed-grid" style={{ display: 'grid', gap: 10 }}>
+            {(feeds ?? []).map(feed => (
               <div key={feed.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: `${theme.bg}66`, borderRadius: 12, border: `1px solid ${theme.borderLight}` }}>
                 <StatusDot status={feed.status} />
                 <div style={{ flex: 1 }}>

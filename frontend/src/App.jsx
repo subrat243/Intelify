@@ -55,6 +55,7 @@ export default function App() {
 
     .dashboard-stat-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .dashboard-chart-grid, .dashboard-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .dashboard-feed-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .ioc-grid { grid-template-columns: 90px minmax(180px, 1fr) 120px 160px 160px 110px; }
     .feed-grid { grid-template-columns: 260px 110px 100px minmax(120px, 1fr) 120px 120px 120px; }
 
@@ -65,6 +66,7 @@ export default function App() {
       main > div { padding: 20px !important; }
       .dashboard-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .dashboard-chart-grid, .dashboard-detail-grid { grid-template-columns: 1fr; }
+      .dashboard-feed-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .feed-grid { grid-template-columns: 1.5fr 100px 80px minmax(80px, 1fr) 100px 100px 110px; gap: 8px !important; padding-left: 16px !important; padding-right: 16px !important; }
     }
 
@@ -80,6 +82,7 @@ export default function App() {
       .topbar-actions > div:nth-child(1), .topbar-actions > div:nth-child(2) { display: none !important; }
       main > div { padding: 14px !important; }
       .dashboard-stat-grid { gap: 10px !important; }
+      .dashboard-feed-grid { grid-template-columns: 1fr !important; }
       .ioc-grid { grid-template-columns: 70px minmax(180px, 1fr) 100px; padding-left: 14px !important; padding-right: 14px !important; }
       .ioc-grid > :nth-child(4), .ioc-grid > :nth-child(5), .ioc-grid > :nth-child(6) { display: none; }
       .feed-grid { display: flex !important; flex-wrap: wrap; gap: 12px !important; }

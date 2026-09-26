@@ -123,7 +123,7 @@ export function SparkLine({ data, color, height = 32, width = 120 }) {
     .join(' ')
   const id = `gradient-${c.replace('#', '')}`
   return (
-    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} style={{ overflow: 'visible', display: 'block' }}>
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} style={{ overflow: 'visible', display: 'block', maxWidth: '100%', height: 'auto' }}>
       <defs>
         <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={c} stopOpacity="0.15" />
