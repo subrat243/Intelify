@@ -13,32 +13,30 @@ Ingests live IOC feeds, provides a searchable REST API, and a React dashboard �
 
 ## Features
 
-- **Real-time feed ingestion** — 8 open-source feeds auto-refreshed in the background
+- **Real-time feed ingestion** — 11 open-source feeds auto-refreshed in the background
 - **REST API** — FastAPI backend with full OpenAPI/Swagger docs at `/docs`
-- **React dashboard** — Live feed table, IOC search, bulk lookup, feed health management
+- **React dashboard** — Light, responsive operations UI with live feed table, IOC search, bulk lookup, and feed health management
 - **Zero dependencies on paid services** — all data from free, public threat intel sources
 - **CSV export** — download any filtered IOC set
 - **Docker Compose** — one command to run everything
 - **Retained IOC registry** — duplicate indicators are merged across feeds and remain available across refreshes
+- **Interactive visualizations** — responsive charts, live polling, and animated glyph-matrix background
 
 ---
 
 ## 📸 Interface Tour
 
-### Slate Dark Mode (Default)
-![Intelify Dashboard - Dark Mode](docs/images/click_feedback_1774129783367.png)
+### Dashboard
+![Intelify Dashboard](docs/images/dashboard.png)
 
-### Light Mode
-![Intelify Dashboard - Light Mode](docs/images/click_feedback_1774129789121.png)
+### Live Intel
+![Intelify Live Intel](docs/images/live-intel.png)
 
-### Real-time Feed Monitoring
-![Intelify Live Feed](docs/images/click_feedback_1774129838865.png)
+### Threat Search
+![Intelify Threat Search](docs/images/search.png)
 
-### Threat Search & Correlation
-![Intelify Search](docs/images/click_feedback_1774129845269.png)
-
-### Infrastructure Radar
-![Intelify Operations](docs/images/click_feedback_1774129851499.png)
+### Feed Operations
+![Intelify Feed Operations](docs/images/operations.png)
 
 ---
 
@@ -67,7 +65,7 @@ All feeds are **free** and **require no API key**.
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                        React Frontend                       │
-│   Dashboard · Live Feed · IOC Search · Feed Management      │
+│   Dashboard · Live Intel · Search · Operations              │
 └──────────────────────┬──────────────────────────────────────┘
                        │ HTTP /api/v1/*
 ┌──────────────────────▼──────────────────────────────────────┐
@@ -102,9 +100,18 @@ Or use the startup script, which supports both `docker-compose` and `docker comp
 ./start.sh
 ```
 
+The launcher automatically uses whichever Compose command is installed (`docker-compose` or `docker compose`).
+
 - Frontend: http://localhost:5173  
 - Backend API: http://localhost:8000  
 - Swagger docs: http://localhost:8000/docs
+
+Frontend routes:
+
+- `/` — Dashboard
+- `/live` — Live Intel
+- `/search` — Threat Search and bulk correlation
+- `/feeds` — Feed Operations
 
 ---
 
@@ -194,7 +201,7 @@ Intelify/
 │   ├── Dockerfile
 │   ├── nginx.conf
 │   └── src/
-│       ├── App.jsx              # Layout + sidebar navigation
+│       ├── App.jsx              # Layout + routed top navigation
 │       ├── main.jsx
 │       ├── components/
 │       │   └── ui.jsx           # Shared: Badge, Spinner, IOCModal, SparkLine...
@@ -202,7 +209,7 @@ Intelify/
 │       │   └── usePolling.js    # Generic polling hook
 │       ├── pages/
 │       │   ├── Dashboard.jsx    # Stats overview + charts
-│       │   ├── LiveFeed.jsx     # Paginated real-time IOC table
+│       │   ├── LiveFeed.jsx     # Paginated real-time IOC table and filters
 │       │   ├── Search.jsx       # Single + bulk IOC lookup
 │       │   └── Feeds.jsx        # Feed health + manual refresh
 │       └── utils/
@@ -248,3 +255,6 @@ All threat data courtesy of:
 - [CISA](https://www.cisa.gov) — Known Exploited Vulnerabilities catalog
 - [Blocklist.de](https://www.blocklist.de) — SSH attack IPs
 - [Sentinel IPS / CINS](https://cinsscore.com) — Bad actor IP list
+- [OpenPhish](https://openphish.com) — phishing URLs
+- [Proofpoint Emerging Threats](https://rules.emergingthreats.net) — compromised IPs
+- [Stamparm IPsum](https://github.com/stamparm/ipsum) — malicious IP reputation
