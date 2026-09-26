@@ -23,11 +23,14 @@ export default function LiveFeed() {
   const [sourceFilter, setSourceFilter] = useState('All')
 
   const pollRef = useRef(null)
+  const requestRef = useRef(0)
 
   const fetchIOCs = useCallback(async (p = 1) => {
+    const requestId = ++requestRef.current
     try {
       setError(null)
       const data = await api.getIOCs({ type: typeFilter, confidence: confFilter, source: sourceFilter, page: p, limit: 50 })
+      if (requestId !== requestRef.current) return
       setIocs(prev => {
         const prevIds = new Set(prev.map(i => i.id))
         const fresh = new Set((data.iocs || []).filter(i => !prevIds.has(i.id)).map(i => i.id))
@@ -41,6 +44,7 @@ export default function LiveFeed() {
       setPages(data.pages || 1)
       setLoading(false)
     } catch (e) {
+      if (requestId !== requestRef.current) return
       setError(e.message)
       setLoading(false)
     }
