@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { BrowserRouter, Navigate, NavLink, Route, Routes, useLocation } from 'react-router-dom'
 import Dashboard from './pages/Dashboard'
 import LiveFeed from './pages/LiveFeed'
 import Search from './pages/Search'
@@ -6,14 +6,14 @@ import Feeds from './pages/Feeds'
 import { Icons, THEMES, ThemeContext } from './components/ui'
 
 const NAV_ITEMS = [
-  { id: 'dashboard', label: 'Dashboard', icon: Icons.Activity },
-  { id: 'live', label: 'Live Intel', icon: Icons.Zap },
-  { id: 'search', label: 'Search', icon: Icons.Search },
-  { id: 'feeds', label: 'Operations', icon: Icons.Database },
+  { id: 'dashboard', path: '/', label: 'Dashboard', icon: Icons.Activity },
+  { id: 'live', path: '/live', label: 'Live Intel', icon: Icons.Zap },
+  { id: 'search', path: '/search', label: 'Search', icon: Icons.Search },
+  { id: 'feeds', path: '/feeds', label: 'Operations', icon: Icons.Database },
 ]
 
-export default function App() {
-  const [page, setPage] = useState('dashboard')
+function AppLayout() {
+  const location = useLocation()
   const theme = THEMES.light
 
   const PAGE_TITLES = {
@@ -96,6 +96,8 @@ export default function App() {
     ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
   `
 
+  const activeItem = NAV_ITEMS.find(item => item.path === location.pathname) || NAV_ITEMS[0]
+
   return (
     <ThemeContext.Provider value={{ theme }}>
       <style>{GLOBAL_STYLES}</style>
@@ -123,33 +125,30 @@ export default function App() {
           {/* Nav */}
           <nav style={{ padding: '8px 12px', flex: 1, display: 'flex', alignItems: 'center', gap: 4, overflowX: 'auto' }}>
             {NAV_ITEMS.map(item => {
-              const active = page === item.id
               return (
-                <button
+                <NavLink
                   key={item.id}
-                  onClick={() => setPage(item.id)}
-                  style={{
+                  to={item.path}
+                  style={({ isActive }) => ({
                     display: 'flex', alignItems: 'center', gap: 10, width: 'auto',
                     padding: '10px 14px', borderRadius: 8, border: 'none', marginBottom: 0,
-                    background: active ? theme.navActive : 'transparent',
-                    color: active ? theme.text : theme.textSecondary,
-                    fontSize: 13, fontWeight: active ? 600 : 500, transition: 'all 0.2s', textAlign: 'left',
-                  }}
-                  onMouseEnter={e => { if (!active) e.currentTarget.style.background = theme.navHover; e.currentTarget.style.color = theme.text }}
-                  onMouseLeave={e => { e.currentTarget.style.background = active ? theme.navActive : 'transparent'; e.currentTarget.style.color = active ? theme.text : theme.textSecondary }}
+                    background: isActive ? theme.navActive : 'transparent',
+                    color: isActive ? theme.text : theme.textSecondary,
+                    fontSize: 13, fontWeight: isActive ? 600 : 500, transition: 'all 0.2s', textAlign: 'left',
+                    textDecoration: 'none',
+                  })}
                 >
-                  <div style={{ width: 18, height: 18, color: active ? theme.accent : 'inherit', flexShrink: 0 }}>
+                  <div style={{ width: 18, height: 18, color: 'inherit', flexShrink: 0 }}>
                     <item.icon />
                   </div>
                   {item.label}
-                  {active && <div style={{ marginLeft: 'auto', width: 5, height: 5, borderRadius: '50%', background: theme.accent, boxShadow: `0 0 8px ${theme.accent}` }} />}
-                </button>
+                </NavLink>
               )
             })}
           </nav>
 
           <div className="topbar-title" style={{ color: theme.textSecondary, fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap', padding: '0 24px' }}>
-            {PAGE_TITLES[page]}
+            {PAGE_TITLES[activeItem.id]}
           </div>
 
           {/* Footer */}
@@ -181,14 +180,25 @@ export default function App() {
           {/* Page content */}
           <div style={{ flex: 1, overflowY: 'auto', padding: '32px' }}>
             <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-              {page === 'dashboard' && <Dashboard />}
-              {page === 'live' && <LiveFeed />}
-              {page === 'search' && <Search />}
-              {page === 'feeds' && <Feeds />}
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/live" element={<LiveFeed />} />
+                <Route path="/search" element={<Search />} />
+                <Route path="/feeds" element={<Feeds />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
             </div>
           </div>
         </main>
       </div>
     </ThemeContext.Provider>
+  )
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppLayout />
+    </BrowserRouter>
   )
 }
