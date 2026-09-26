@@ -23,8 +23,8 @@ function DonutChart({ data, colors, theme }) {
   })
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 22, alignItems: 'center', justifyContent: 'space-between', flex: 1, minHeight: 250, paddingTop: 8 }}>
-      <svg viewBox="0 0 100 100" width={150} height={150} style={{ flexShrink: 0 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 22, alignItems: 'center', justifyContent: 'space-between', flex: 1, minHeight: 280, paddingTop: 8 }}>
+      <svg viewBox="0 0 100 100" width={220} height={220} style={{ flexShrink: 0, maxWidth: '100%', height: 'auto' }}>
         <circle cx="50" cy="50" r="26" fill={theme.cardSolid} />
         {slices.map((s, i) => (
           <path key={i} d={s.path} fill={s.color} opacity={0.9} style={{ transition: 'all 0.3s' }} />
