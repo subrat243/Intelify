@@ -63,6 +63,14 @@ class FeedManagerTests(unittest.TestCase):
         self.assertEqual(parsed[0].port, "443")
         self.assertEqual(parsed[0].type, IOCType.IP)
 
+    def test_sslbl_parser_uses_fingerprint_column(self):
+        text = '2026-09-26 15:39:47,e58d378500a9237df93a66f055ac6e0dc900d7fa,Malware C&C\n'
+
+        parsed = self.manager._parse_sslbl(text, "sslbl")
+
+        self.assertEqual(len(parsed), 1)
+        self.assertEqual(parsed[0].value, "e58d378500a9237df93a66f055ac6e0dc900d7fa")
+
 
 if __name__ == "__main__":
     unittest.main()

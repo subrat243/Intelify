@@ -306,7 +306,7 @@ class FeedManager:
         for parts in reader:
             if not parts or parts[0].startswith("#"):
                 continue
-            sha1 = parts[0] if parts else ""
+            sha1 = parts[1].strip() if len(parts) > 1 else ""
             if len(sha1) != 40:
                 continue
             iocs.append(IOC(
@@ -318,7 +318,7 @@ class FeedManager:
                 source="SSL Blacklist",
                 sources=["SSL Blacklist"],
                 tags=["ssl", "certificate", "malware"],
-                first_seen=parts[1] if len(parts) > 1 else None,
+                first_seen=parts[0] if parts else None,
             ))
         return _limit_iocs(iocs)
 
@@ -420,7 +420,7 @@ class FeedManager:
             fi.status = FeedStatus.ERROR
             fi.error = str(e)
             fi.last_fetch = datetime.utcnow()
-            logger.error(f"Feed {fi.name} failed: {e}")
+            logger.error("Feed %s failed: %r", fi.name, e)
 
     # ── Background scheduler ─────────────────────────────────────────────────
 
