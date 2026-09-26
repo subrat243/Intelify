@@ -46,6 +46,13 @@ class FeedManagerTests(unittest.TestCase):
 
         self.assertEqual(len(parsed), 201)
 
+    def test_plain_url_parser_ignores_comments_and_non_urls(self):
+        text = "# feed header\nhttps://phishing.example/a\nnot-a-url\nhttp://phishing.example/b\n"
+
+        parsed = self.manager._parse_plain_urls(text, "openphish", "OpenPhish", "Phishing", ["phishing"])
+
+        self.assertEqual([ioc.value for ioc in parsed], ["https://phishing.example/a", "http://phishing.example/b"])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -54,6 +54,9 @@ Ingests live IOC feeds, provides a searchable REST API, and a React dashboard â€
 | [SSL Blacklist](https://sslbl.abuse.ch) | Abuse.ch | Malicious SSL cert hashes | 30 min |
 | [Blocklist.de SSH](https://www.blocklist.de) | Blocklist.de | SSH brute-force IPs | 10 min |
 | [CINS Score](https://cinsscore.com) | Sentinel IPS | Bad actor IPs | 15 min |
+| [OpenPhish](https://openphish.com) | OpenPhish | Phishing URLs | 15 min |
+| [Emerging Threats](https://rules.emergingthreats.net) | Proofpoint | Compromised IPs | 30 min |
+| [IPsum](https://github.com/stamparm/ipsum) | Stamparm | Malicious IPs | 30 min |
 
 All feeds are **free** and **require no API key**.
 

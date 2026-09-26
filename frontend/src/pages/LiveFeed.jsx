@@ -4,7 +4,7 @@ import { Badge, Icons, IOCModal, Spinner, useTheme, TYPE_COLOR, CONF_COLOR } fro
 
 const IOC_TYPES = ['All', 'IP', 'URL', 'Domain', 'Hash', 'CVE', 'Email']
 const CONF_LEVELS = ['All', 'Critical', 'High', 'Medium', 'Low']
-const SOURCES = ['All', 'Feodo Tracker', 'URLhaus', 'ThreatFox', 'MalwareBazaar', 'CISA KEV', 'SSL Blacklist', 'Blocklist.de SSH', 'CINS Score']
+const SOURCES = ['All', 'Feodo Tracker', 'URLhaus', 'ThreatFox', 'MalwareBazaar', 'CISA KEV', 'SSL Blacklist', 'Blocklist.de SSH', 'CINS Score', 'OpenPhish', 'Emerging Threats', 'IPsum']
 
 export default function LiveFeed() {
   const { theme } = useTheme()

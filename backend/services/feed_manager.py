@@ -98,6 +98,33 @@ FEED_DEFINITIONS = [
         "url": "https://cinsscore.com/list/ci-badguys.txt",
         "refresh_interval_minutes": 15,
     },
+    {
+        "id": "openphish",
+        "name": "OpenPhish",
+        "org": "OpenPhish",
+        "type": "Phishing URLs",
+        "color": "#fb7185",
+        "url": "https://raw.githubusercontent.com/openphish/public_feed/master/feed.txt",
+        "refresh_interval_minutes": 15,
+    },
+    {
+        "id": "emerging_threats",
+        "name": "Emerging Threats",
+        "org": "Proofpoint",
+        "type": "Compromised IPs",
+        "color": "#facc15",
+        "url": "https://rules.emergingthreats.net/blockrules/compromised-ips.txt",
+        "refresh_interval_minutes": 30,
+    },
+    {
+        "id": "ipsum",
+        "name": "IPsum",
+        "org": "Stamparm",
+        "type": "Malicious IPs",
+        "color": "#c084fc",
+        "url": "https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt",
+        "refresh_interval_minutes": 30,
+    },
 ]
 
 
@@ -307,6 +334,24 @@ class FeedManager:
             ))
         return _limit_iocs(iocs)
 
+    def _parse_plain_urls(self, text: str, feed_id: str, source: str, malware: str, tags: List[str]) -> List[IOC]:
+        iocs = []
+        for line in text.splitlines():
+            url = line.strip()
+            if not url or url.startswith("#") or not url.startswith(("http://", "https://")):
+                continue
+            iocs.append(IOC(
+                id=self._make_id(feed_id, url),
+                type=IOCType.URL,
+                value=url,
+                confidence=Confidence.HIGH,
+                malware=malware,
+                source=source,
+                sources=[source],
+                tags=tags,
+            ))
+        return _limit_iocs(iocs)
+
     # ── Fetch + dispatch ──────────────────────────────────────────────────────
 
     async def fetch_feed(self, feed_def: dict) -> None:
@@ -339,6 +384,12 @@ class FeedManager:
                 iocs = self._parse_plain_ips(text, feed_id, "Blocklist.de SSH", "SSH Brute-Force", ["ssh", "bruteforce", "ip"])
             elif feed_id == "cinsscore":
                 iocs = self._parse_plain_ips(text, feed_id, "CINS Score", "Bad Actor", ["scanner", "attacker", "ip"])
+            elif feed_id == "openphish":
+                iocs = self._parse_plain_urls(text, feed_id, "OpenPhish", "Phishing", ["phishing", "url"])
+            elif feed_id == "emerging_threats":
+                iocs = self._parse_plain_ips(text, feed_id, "Emerging Threats", "Compromised Host", ["compromised", "ip"])
+            elif feed_id == "ipsum":
+                iocs = self._parse_plain_ips(text, feed_id, "IPsum", "Malicious IP", ["reputation", "ip"])
             else:
                 iocs = []
 
