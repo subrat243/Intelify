@@ -117,7 +117,10 @@ export default function Dashboard() {
     </div>
   )
 
-  const topSources = stats?.by_source ? Object.entries(stats.by_source).sort((a, b) => b[1] - a[1]).slice(0, 8) : []
+  const sourceCounts = feeds?.length
+    ? Object.fromEntries(feeds.map(feed => [feed.name, feed.ioc_count ?? 0]))
+    : (stats?.by_source ?? {})
+  const topSources = Object.entries(sourceCounts).sort((a, b) => b[1] - a[1]).slice(0, 8)
   const latestIngestion = stats?.ingestion_history?.at(-1) ?? 0
   const lastUpdated = stats?.last_updated ? new Date(stats.last_updated).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Waiting'
 
@@ -178,7 +181,7 @@ export default function Dashboard() {
         {/* Source breakdown */}
         <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 12, padding: 24, boxShadow: '0 6px 18px rgba(32,44,70,0.04)' }}>
           <div style={{ fontSize: 12, color: theme.text, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: 6 }}>Intelligence sources</div>
-          <div style={{ fontSize: 11, color: theme.textMuted, marginBottom: 20 }}>Records currently retained by source.</div>
+          <div style={{ fontSize: 11, color: theme.textMuted, marginBottom: 20 }}>Current records reported by each feed.</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {topSources.map(([source, count], i) => {
               const max = topSources[0]?.[1] ?? 1
