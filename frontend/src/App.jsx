@@ -60,7 +60,8 @@ export default function App() {
 
     @media (max-width: 900px) {
       aside { width: 100% !important; }
-      main > header { padding: 0 20px !important; }
+      .topbar-title { padding: 0 12px !important; }
+      .topbar-actions { padding: 8px 14px !important; gap: 12px !important; }
       main > div { padding: 20px !important; }
       .dashboard-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .dashboard-chart-grid, .dashboard-detail-grid { grid-template-columns: 1fr; }
@@ -74,8 +75,9 @@ export default function App() {
       aside nav { overflow-x: auto; padding: 6px 8px !important; }
       aside nav button { flex-shrink: 0; padding: 8px 10px !important; }
       aside nav button > div:last-child { display: none; }
-      main > header { padding: 0 14px !important; }
-      main > header a { display: none !important; }
+      .topbar-title { display: none; }
+      .topbar-actions { padding: 8px 12px !important; gap: 8px !important; }
+      .topbar-actions > div:nth-child(1), .topbar-actions > div:nth-child(2) { display: none !important; }
       main > div { padding: 14px !important; }
       .dashboard-stat-grid { gap: 10px !important; }
       .ioc-grid { grid-template-columns: 70px minmax(180px, 1fr) 100px; padding-left: 14px !important; padding-right: 14px !important; }
@@ -143,45 +145,36 @@ export default function App() {
             })}
           </nav>
 
+          <div className="topbar-title" style={{ color: theme.textSecondary, fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap', padding: '0 24px' }}>
+            {PAGE_TITLES[page]}
+          </div>
+
           {/* Footer */}
-          <div style={{ padding: '12px 24px', borderLeft: `1px solid ${theme.border}` }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+          <div className="topbar-actions" style={{ padding: '12px 24px', borderLeft: `1px solid ${theme.border}`, display: 'flex', alignItems: 'center', gap: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <div style={{ width: 6, height: 6, borderRadius: '50%', background: theme.success, boxShadow: `0 0 8px ${theme.success}` }} />
               <span style={{ fontSize: 11, color: theme.textSecondary, fontWeight: 500 }}>System Nominal</span>
             </div>
             <div style={{ fontSize: 11, color: theme.textMuted, lineHeight: 1.6 }}>
               v1.0.4 · Production
             </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: `${theme.success}11`, padding: '4px 10px', borderRadius: 20, border: `1px solid ${theme.success}22` }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: theme.success, display: 'inline-block', animation: 'pulse 2s infinite' }} />
+              <span style={{ fontSize: 10, color: theme.success, fontWeight: 700, letterSpacing: '0.05em' }}>LIVE FEED ACTIVE</span>
+            </div>
+            <a
+              href="https://github.com/subrat243/Intelify"
+              target="_blank"
+              rel="noreferrer"
+              style={{ fontSize: 12, color: theme.textMuted, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}
+            >
+              Docs ↗
+            </a>
           </div>
         </aside>
 
         {/* ── Main ──────────────────────────────────────────────────────── */}
         <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          {/* Top bar */}
-          <header style={{
-            height: 64, borderBottom: `1px solid ${theme.border}`, background: 'rgba(255,255,255,0.82)',
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '0 32px', flexShrink: 0, backdropFilter: 'blur(12px)', zIndex: 10
-          }}>
-            <h1 style={{ fontSize: 15, color: theme.textSecondary, fontWeight: 600, margin: 0 }}>{PAGE_TITLES[page]}</h1>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: `${theme.success}11`, padding: '4px 10px', borderRadius: 20, border: `1px solid ${theme.success}22` }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: theme.success, display: 'inline-block', animation: 'pulse 2s infinite' }} />
-                <span style={{ fontSize: 10, color: theme.success, fontWeight: 700, letterSpacing: '0.05em' }}>LIVE FEED ACTIVE</span>
-              </div>
-              <a
-                href="https://github.com/subrat243/Intelify"
-                target="_blank"
-                rel="noreferrer"
-                style={{ fontSize: 12, color: theme.textMuted, textDecoration: 'none', transition: 'color 0.2s', display: 'flex', alignItems: 'center', gap: 6 }}
-                onMouseEnter={e => e.currentTarget.style.color = theme.textSecondary}
-                onMouseLeave={e => e.currentTarget.style.color = theme.textMuted}
-              >
-                Docs ↗
-              </a>
-            </div>
-          </header>
-
           {/* Page content */}
           <div style={{ flex: 1, overflowY: 'auto', padding: '32px' }}>
             <div style={{ maxWidth: 1200, margin: '0 auto' }}>
