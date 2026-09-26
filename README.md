@@ -93,6 +93,12 @@ cd Intelify
 docker compose up --build
 ```
 
+Or use the startup script, which supports both `docker-compose` and `docker compose`:
+
+```bash
+./start.sh
+```
+
 - Frontend: http://localhost:5173  
 - Backend API: http://localhost:8000  
 - Swagger docs: http://localhost:8000/docs
