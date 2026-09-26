@@ -102,7 +102,7 @@ export default function LiveFeed() {
       }}>
         {/* Type pills */}
         <div style={{ display: 'flex', gap: 6 }}>
-          {IOC_TYPES.slice(0, 4).map(t => (
+          {IOC_TYPES.map(t => (
             <button key={t} onClick={() => setTypeFilter(t)} style={{
               padding: '8px 14px', borderRadius: 8, border: `1px solid ${typeFilter === t ? theme.primary + '44' : theme.border}`,
               background: typeFilter === t ? theme.primary + '11' : theme.card,
@@ -110,10 +110,6 @@ export default function LiveFeed() {
               fontSize: 12, fontWeight: 600, transition: 'all 0.2s',
             }}>{t}</button>
           ))}
-          <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} style={{ padding: '8px 12px', background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 8, color: theme.textSecondary, fontSize: 12, fontWeight: 600 }}>
-            <option value="" disabled>Other Types</option>
-            {IOC_TYPES.slice(4).map(t => <option key={t}>{t}</option>)}
-          </select>
         </div>
 
         <div style={{ width: 1, height: 24, background: theme.border }} />
