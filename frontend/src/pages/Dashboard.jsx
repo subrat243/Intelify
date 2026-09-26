@@ -23,8 +23,8 @@ function DonutChart({ data, colors, theme }) {
   })
 
   return (
-    <div style={{ display: 'flex', gap: 36, alignItems: 'center', justifyContent: 'center', flex: 1, minHeight: 240 }}>
-      <svg viewBox="0 0 100 100" width={170} height={170} style={{ flexShrink: 0 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 22, alignItems: 'center', justifyContent: 'space-between', flex: 1, minHeight: 250, paddingTop: 8 }}>
+      <svg viewBox="0 0 100 100" width={150} height={150} style={{ flexShrink: 0 }}>
         <circle cx="50" cy="50" r="26" fill={theme.cardSolid} />
         {slices.map((s, i) => (
           <path key={i} d={s.path} fill={s.color} opacity={0.9} style={{ transition: 'all 0.3s' }} />
@@ -32,7 +32,7 @@ function DonutChart({ data, colors, theme }) {
         <text x="50" y="48" textAnchor="middle" fill={theme.text} fontSize="9" fontWeight="700">{total.toLocaleString()}</text>
         <text x="50" y="57" textAnchor="middle" fill={theme.textMuted} fontSize="4.5">TOTAL IOCs</text>
       </svg>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
+      <div style={{ width: '100%', display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '12px 28px' }}>
         {slices.slice(0, 6).map((s, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 8, height: 8, borderRadius: 2, background: s.color, flexShrink: 0 }} />
