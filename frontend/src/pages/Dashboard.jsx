@@ -181,7 +181,7 @@ export default function Dashboard() {
 
       <div className="dashboard-detail-grid" style={{ display: 'grid', gap: 20 }}>
         {/* IOC Type Distribution */}
-        <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 12, padding: 24, boxShadow: '0 6px 18px rgba(32,44,70,0.04)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 12, padding: 24, boxShadow: '0 6px 18px rgba(32,44,70,0.04)' }}>
           <div style={{ fontSize: 12, color: theme.text, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: 24 }}>Indicator distribution</div>
           <DonutChart data={stats?.by_type} colors={DONUT_COLORS} theme={theme} />
         </div>
