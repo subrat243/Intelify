@@ -10,11 +10,19 @@ import json
 import csv
 import io
 import logging
+import os
 from datetime import datetime
 from typing import Dict, List, Optional
 from models.schemas import IOC, IOCType, Confidence, FeedInfo, FeedStatus
 
 logger = logging.getLogger(__name__)
+MAX_IOCS_PER_FEED = int(os.getenv("INTELIFY_MAX_IOCS_PER_FEED", "0"))
+
+
+def _limit_iocs(iocs: List[IOC]) -> List[IOC]:
+    if MAX_IOCS_PER_FEED > 0:
+        return iocs[:MAX_IOCS_PER_FEED]
+    return iocs
 
 # ── Feed definitions ──────────────────────────────────────────────────────────
 FEED_DEFINITIONS = [
@@ -141,7 +149,7 @@ class FeedManager:
                 tags=["botnet", "c2", "ip"],
                 first_seen=parts[0].strip() if parts else None,
             ))
-        return iocs[:200]
+        return _limit_iocs(iocs)
 
     def _parse_urlhaus(self, text: str, feed_id: str) -> List[IOC]:
         iocs = []
@@ -168,7 +176,7 @@ class FeedManager:
                 tags=tags[:4],
                 first_seen=row[1].strip() if len(row) > 1 else None,
             ))
-        return iocs[:200]
+        return _limit_iocs(iocs)
 
     def _parse_threatfox(self, text: str, feed_id: str) -> List[IOC]:
         iocs = []
@@ -206,7 +214,7 @@ class FeedManager:
                 tags=[row[4].strip(), raw_type][:4] if row[4].strip() else [raw_type],
                 first_seen=row[0].strip() if row else None,
             ))
-        return iocs[:200]
+        return _limit_iocs(iocs)
 
     def _parse_bazaar(self, text: str, feed_id: str) -> List[IOC]:
         iocs = []
@@ -231,13 +239,13 @@ class FeedManager:
                 tags=[row[4].strip(), row[6].strip()][:3] if len(row) > 6 else ["malware", "hash"],
                 first_seen=row[0].strip() if row else None,
             ))
-        return iocs[:200]
+        return _limit_iocs(iocs)
 
     def _parse_cisa_kev(self, text: str, feed_id: str) -> List[IOC]:
         iocs = []
         try:
             data = json.loads(text)
-            for v in data.get("vulnerabilities", [])[:200]:
+            for v in data.get("vulnerabilities", []):
                 iocs.append(IOC(
                     id=self._make_id(feed_id, v.get("cveID", "")),
                     type=IOCType.CVE,
@@ -254,7 +262,7 @@ class FeedManager:
                 ))
         except json.JSONDecodeError:
             pass
-        return iocs
+        return _limit_iocs(iocs)
 
     def _parse_sslbl(self, text: str, feed_id: str) -> List[IOC]:
         iocs = []
@@ -276,7 +284,7 @@ class FeedManager:
                 tags=["ssl", "certificate", "malware"],
                 first_seen=parts[1] if len(parts) > 1 else None,
             ))
-        return iocs[:200]
+        return _limit_iocs(iocs)
 
     def _parse_plain_ips(self, text: str, feed_id: str, source: str, malware: str, tags: List[str]) -> List[IOC]:
         iocs = []
@@ -297,7 +305,7 @@ class FeedManager:
                 sources=[source],
                 tags=tags,
             ))
-        return iocs[:200]
+        return _limit_iocs(iocs)
 
     # ── Fetch + dispatch ──────────────────────────────────────────────────────
 

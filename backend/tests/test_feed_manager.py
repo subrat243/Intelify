@@ -1,4 +1,5 @@
 import unittest
+import json
 
 from models.schemas import Confidence, IOC, IOCType
 from services.feed_manager import FeedManager
@@ -34,6 +35,16 @@ class FeedManagerTests(unittest.TestCase):
         parsed = self.manager._parse_feodo(text, "feodo")
 
         self.assertEqual(parsed[0].malware, "family,with,comma")
+
+    def test_cisa_parser_does_not_apply_hard_coded_200_record_limit(self):
+        vulnerabilities = [
+            {"cveID": f"CVE-2026-{index:04d}", "product": "Test Product"}
+            for index in range(201)
+        ]
+
+        parsed = self.manager._parse_cisa_kev(json.dumps({"vulnerabilities": vulnerabilities}), "cisa_kev")
+
+        self.assertEqual(len(parsed), 201)
 
 
 if __name__ == "__main__":

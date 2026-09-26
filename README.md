@@ -212,6 +212,8 @@ Intelify/
 
 ## Configuration
 
+Feed ingestion is unlimited by default, so dashboard counts reflect the full response from each live source. To apply a memory-protection limit per feed, set `INTELIFY_MAX_IOCS_PER_FEED` to a positive integer before starting the backend.
+
 To add new feeds, edit `backend/services/feed_manager.py`:
 
 1. Add an entry to `FEED_DEFINITIONS` with `id`, `name`, `org`, `type`, `color`, `url`, `refresh_interval_minutes`
