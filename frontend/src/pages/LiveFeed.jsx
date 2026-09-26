@@ -85,8 +85,9 @@ export default function LiveFeed() {
 
   return (
     <div style={{ animation: 'fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)' }}>
+      <div className="live-feed-layout">
       {/* Toolbar */}
-      <div style={{ 
+      <div className="live-toolbar" style={{
         background: theme.bgAlt, 
         border: `1px solid ${theme.border}`, 
         borderRadius: 16, 
@@ -149,7 +150,7 @@ export default function LiveFeed() {
       </div>
 
       {/* Table */}
-      <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 16, overflow: 'hidden', boxShadow: '0 4px 12px rgba(15,23,42,0.05)', backdropFilter: 'blur(8px)' }}>
+      <div className="live-table" style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 16, overflow: 'hidden', boxShadow: '0 4px 12px rgba(15,23,42,0.05)', backdropFilter: 'blur(8px)' }}>
         {/* Header */}
         <div className="ioc-grid" style={{
           display: 'grid',
@@ -216,7 +217,7 @@ export default function LiveFeed() {
       </div>
 
       {/* Pagination */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 20, padding: '0 8px' }}>
+      <div className="live-pagination" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 20, padding: '0 8px' }}>
         <div style={{ fontSize: 12, color: theme.textMuted, fontWeight: 500 }}>
           Displaying <span style={{ color: theme.textSecondary, fontWeight: 700 }}>{iocs.length}</span> of <span style={{ color: theme.textSecondary, fontWeight: 700 }}>{(total || 0).toLocaleString()}</span> indicators
         </div>
@@ -249,6 +250,7 @@ export default function LiveFeed() {
             </button>
           </div>
         )}
+      </div>
       </div>
 
       {selectedIOC && <IOCModal ioc={selectedIOC} onClose={() => setSelectedIOC(null)} />}

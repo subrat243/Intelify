@@ -56,6 +56,13 @@ function AppLayout() {
     .dashboard-stat-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .dashboard-chart-grid, .dashboard-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .dashboard-feed-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .live-feed-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 20px; align-items: start; }
+    .live-toolbar { display: flex !important; flex-direction: column; align-items: stretch !important; margin-bottom: 0 !important; }
+    .live-toolbar > div { width: auto !important; height: auto !important; }
+    .live-toolbar select { width: 100%; max-width: none !important; }
+    .live-toolbar > div:last-child { margin-left: 0 !important; flex-direction: column; }
+    .live-toolbar > div:last-child button { justify-content: center; }
+    .live-table, .live-pagination { grid-column: 2; }
     .ioc-grid { grid-template-columns: 90px minmax(180px, 1fr) 120px 160px 160px 110px; }
     .feed-grid { grid-template-columns: 260px 110px 100px minmax(120px, 1fr) 120px 120px 120px; }
 
@@ -67,6 +74,7 @@ function AppLayout() {
       .dashboard-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .dashboard-chart-grid, .dashboard-detail-grid { grid-template-columns: 1fr; }
       .dashboard-feed-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .live-feed-layout { grid-template-columns: 180px minmax(0, 1fr); gap: 14px; }
       .feed-grid { grid-template-columns: 1.5fr 100px 80px minmax(80px, 1fr) 100px 100px 110px; gap: 8px !important; padding-left: 16px !important; padding-right: 16px !important; }
     }
 
@@ -83,6 +91,8 @@ function AppLayout() {
       main > div { padding: 14px !important; }
       .dashboard-stat-grid { gap: 10px !important; }
       .dashboard-feed-grid { grid-template-columns: 1fr !important; }
+      .live-feed-layout { display: block; }
+      .live-toolbar { margin-bottom: 14px !important; }
       .ioc-grid { grid-template-columns: 70px minmax(180px, 1fr) 100px; padding-left: 14px !important; padding-right: 14px !important; }
       .ioc-grid > :nth-child(4), .ioc-grid > :nth-child(5), .ioc-grid > :nth-child(6) { display: none; }
       .feed-grid { display: flex !important; flex-wrap: wrap; gap: 12px !important; }
