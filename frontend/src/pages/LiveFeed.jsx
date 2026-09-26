@@ -84,7 +84,7 @@ export default function LiveFeed() {
         gap: 12, 
         flexWrap: 'wrap', 
         alignItems: 'center',
-        boxShadow: theme.isDark ? '0 4px 20px -4px rgba(0,0,0,0.3)' : '0 4px 12px -4px rgba(15,23,42,0.05)',
+        boxShadow: '0 4px 12px -4px rgba(15,23,42,0.05)',
         backdropFilter: 'blur(8px)'
       }}>
         {/* Type pills */}
@@ -137,7 +137,7 @@ export default function LiveFeed() {
       </div>
 
       {/* Table */}
-      <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 16, overflow: 'hidden', boxShadow: theme.isDark ? '0 4px 30px rgba(0,0,0,0.4)' : '0 4px 12px rgba(15,23,42,0.05)', backdropFilter: 'blur(8px)' }}>
+      <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 16, overflow: 'hidden', boxShadow: '0 4px 12px rgba(15,23,42,0.05)', backdropFilter: 'blur(8px)' }}>
         {/* Header */}
         <div className="ioc-grid" style={{
           display: 'grid',

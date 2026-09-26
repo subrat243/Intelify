@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import Dashboard from './pages/Dashboard'
 import LiveFeed from './pages/LiveFeed'
 import Search from './pages/Search'
@@ -14,9 +14,7 @@ const NAV_ITEMS = [
 
 export default function App() {
   const [page, setPage] = useState('dashboard')
-  const [themeMode, setThemeMode] = useState('light')
-
-  const theme = useMemo(() => THEMES[themeMode], [themeMode])
+  const theme = THEMES.light
 
   const PAGE_TITLES = {
     dashboard: 'Intelligence Overview',
@@ -89,12 +87,12 @@ export default function App() {
     
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: ${theme.isDark ? '#334155' : '#cbd5e1'}; border-radius: 10px; }
-    ::-webkit-scrollbar-thumb:hover { background: ${theme.isDark ? '#475569' : '#94a3b8'}; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
   `
 
   return (
-    <ThemeContext.Provider value={{ theme, setThemeMode, mode: themeMode }}>
+    <ThemeContext.Provider value={{ theme }}>
       <style>{GLOBAL_STYLES}</style>
       <div style={{ display: 'flex', height: '100vh', background: theme.bg, overflow: 'hidden' }}>
         {/* ── Sidebar ───────────────────────────────────────────────────── */}
@@ -106,7 +104,7 @@ export default function App() {
           <div style={{ padding: '32px 24px 24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{ background: theme.primary, width: 32, height: 32, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ color: theme.isDark ? theme.bg : '#fff', width: 18, height: 18 }}><Icons.Shield /></div>
+                <div style={{ color: '#fff', width: 18, height: 18 }}><Icons.Shield /></div>
               </div>
               <div>
                 <div style={{ fontSize: 16, fontWeight: 700, color: theme.text, letterSpacing: '-0.01em' }}>
@@ -145,25 +143,6 @@ export default function App() {
             })}
           </nav>
 
-          {/* Theme Toggle bottom of nav */}
-          <div style={{ padding: '8px 12px' }}>
-            <button
-              onClick={() => setThemeMode(theme.isDark ? 'light' : 'dark')}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 12, width: '100%',
-                padding: '10px 14px', borderRadius: 10, border: `1px solid ${theme.border}`,
-                background: 'transparent', color: theme.textSecondary, fontSize: 13, fontWeight: 500, transition: 'all 0.2s'
-              }}
-              onMouseEnter={e => { e.currentTarget.style.background = theme.bg; e.currentTarget.style.color = theme.text }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = theme.textSecondary }}
-            >
-              <div style={{ width: 18, height: 18, flexShrink: 0 }}>
-                {theme.isDark ? <Icons.Sun /> : <Icons.Moon />}
-              </div>
-              {theme.isDark ? 'Light Mode' : 'Dark Mode'}
-            </button>
-          </div>
-
           {/* Footer */}
           <div style={{ padding: '20px 24px', borderTop: `1px solid ${theme.border}` }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
@@ -180,7 +159,7 @@ export default function App() {
         <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           {/* Top bar */}
           <header style={{
-            height: 64, borderBottom: `1px solid ${theme.border}`, background: theme.isDark ? 'rgba(2,6,23,0.7)' : 'rgba(255,255,255,0.7)',
+            height: 64, borderBottom: `1px solid ${theme.border}`, background: 'rgba(255,255,255,0.82)',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             padding: '0 32px', flexShrink: 0, backdropFilter: 'blur(12px)', zIndex: 10
           }}>

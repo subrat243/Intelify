@@ -6,27 +6,6 @@ export const ThemeContext = createContext()
 export const useTheme = () => useContext(ThemeContext)
 
 export const THEMES = {
-  dark: {
-    bg: '#020617',     // Slate 950
-    bgAlt: '#0f172a',  // Slate 900
-    card: '#1e293b1a', // Glassy Slate 800
-    cardSolid: '#1e293b',
-    cardHover: '#33415533',
-    border: '#33415544',
-    borderLight: '#33415522',
-    text: '#f8fafc',
-    textSecondary: '#94a3b8',
-    textMuted: '#475569',
-    primary: '#38bdf8', // Blue 400
-    secondary: '#818cf8',
-    accent: '#2dd4bf', // Teal 400
-    danger: '#ef4444',
-    warning: '#f59e0b',
-    success: '#10b981',
-    navActive: '#1d2a40',
-    navHover: '#17243a',
-    isDark: true
-  },
   light: {
     bg: '#eef3f6',
     bgAlt: '#e5edf1',
@@ -45,13 +24,12 @@ export const THEMES = {
     warning: '#d38a26',
     success: '#20a78d',
     navActive: '#dce8ed',
-    navHover: '#e6eef2',
-    isDark: false
+    navHover: '#e6eef2'
   }
 }
 
 // Global reference for static styles if needed, but components should use useTheme()
-export const COLORS = THEMES.dark 
+export const COLORS = THEMES.light
 
 export const CONF_COLOR = (t) => ({
   Critical: t.danger,
@@ -83,8 +61,6 @@ export const Icons = {
   Zap:          () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
   ExternalLink: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>,
   ChevronDown:  () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>,
-  Moon:         () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
-  Sun:          () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>,
 }
 
 // ── Badge ─────────────────────────────────────────────────────────────────────
@@ -205,7 +181,7 @@ export function IOCModal({ ioc, onClose }) {
   return (
     <div
       onClick={onClose}
-      style={{ position: 'fixed', inset: 0, background: theme.isDark ? 'rgba(2,6,23,0.8)' : 'rgba(241,245,249,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, backdropFilter: 'blur(8px)' }}
+      style={{ position: 'fixed', inset: 0, background: 'rgba(241,245,249,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, backdropFilter: 'blur(8px)' }}
     >
       <div
         onClick={e => e.stopPropagation()}
@@ -217,11 +193,11 @@ export function IOCModal({ ioc, onClose }) {
           maxWidth: 580, 
           padding: 32, 
           position: 'relative', 
-          boxShadow: theme.isDark ? `0 24px 64px -12px rgba(0,0,0,0.5), 0 0 1px ${cc}33` : `0 24px 64px -12px rgba(15,23,42,0.1)`, 
+          boxShadow: `0 24px 64px -12px rgba(15,23,42,0.1)`,
           animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)' 
         }}
       >
-        <button onClick={onClose} style={{ position: 'absolute', top: 20, right: 20, background: theme.isDark ? '#33415533' : '#e2e8f0', border: 'none', color: theme.textSecondary, cursor: 'pointer', width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}>
+        <button onClick={onClose} style={{ position: 'absolute', top: 20, right: 20, background: '#e2e8f0', border: 'none', color: theme.textSecondary, cursor: 'pointer', width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}>
           <div style={{ width: 16, height: 16 }}><Icons.X /></div>
         </button>
 
@@ -236,7 +212,7 @@ export function IOCModal({ ioc, onClose }) {
             fontSize: 14, 
             color: theme.text, 
             wordBreak: 'break-all', 
-            background: theme.isDark ? '#020617' : '#f8fafc', 
+            background: '#f8fafc',
             padding: '16px 54px 16px 16px', 
             borderRadius: 12, 
             border: `1px solid ${theme.border}`, 

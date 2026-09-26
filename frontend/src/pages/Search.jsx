@@ -68,7 +68,7 @@ export default function Search() {
             borderRadius: 10,
             color: activeMode === mode ? theme.accent : theme.textMuted,
             fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            boxShadow: activeMode === mode ? `0 4px 12px ${theme.isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.05)'}` : 'none',
+            boxShadow: activeMode === mode ? '0 4px 12px rgba(0,0,0,0.05)' : 'none',
           }}>{label}</button>
         ))}
       </div>
@@ -87,11 +87,11 @@ export default function Search() {
               style={{
                 width: '100%', background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 16,
                 padding: '18px 24px 18px 56px', color: theme.text, fontSize: 16, fontFamily: 'inherit',
-                transition: 'all 0.2s', boxShadow: theme.isDark ? '0 8px 24px -12px rgba(0,0,0,0.5)' : '0 4px 12px -4px rgba(15,23,42,0.05)',
+                transition: 'all 0.2s', boxShadow: '0 4px 12px -4px rgba(15,23,42,0.05)',
                 outline: 'none', backdropFilter: 'blur(8px)'
               }}
               onFocus={e => { e.target.style.borderColor = theme.primary + '66'; e.target.style.boxShadow = `0 0 0 4px ${theme.primary}11` }}
-              onBlur={e => { e.target.style.borderColor = theme.border; e.target.style.boxShadow = theme.isDark ? '0 8px 24px -12px rgba(0,0,0,0.5)' : '0 4px 12px -4px rgba(15,23,42,0.05)' }}
+              onBlur={e => { e.target.style.borderColor = theme.border; e.target.style.boxShadow = '0 4px 12px -4px rgba(15,23,42,0.05)' }}
             />
             {loading && (
               <div style={{ position: 'absolute', right: 20, top: '50%', transform: 'translateY(-50%)' }}>
@@ -195,7 +195,7 @@ export default function Search() {
                 padding: '24px', color: theme.text, fontSize: 14, fontFamily: "var(--font-mono)", 
                 resize: 'none', lineHeight: 1.7, transition: 'all 0.3s ease', outline: 'none',
                 backdropFilter: 'blur(12px)',
-                boxShadow: theme.isDark ? 'inset 0 2px 8px rgba(0,0,0,0.2)' : 'inset 0 2px 4px rgba(0,0,0,0.02)'
+                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
               }}
               onFocus={e => {
                 e.target.style.borderColor = theme.secondary + '88';
@@ -203,7 +203,7 @@ export default function Search() {
               }}
               onBlur={e => {
                 e.target.style.borderColor = theme.border;
-                e.target.style.boxShadow = theme.isDark ? 'inset 0 2px 8px rgba(0,0,0,0.2)' : 'inset 0 2px 4px rgba(0,0,0,0.02)';
+                e.target.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.02)';
               }}
             />
           </div>
@@ -215,7 +215,7 @@ export default function Search() {
               marginTop: 24, padding: '16px 40px', 
               background: `linear-gradient(135deg, ${theme.secondary}, ${theme.primary})`, 
               border: 'none', borderRadius: 16, 
-              color: theme.isDark ? theme.bg : '#fff', 
+              color: '#fff',
               fontSize: 15, fontWeight: 800, letterSpacing: '0.02em',
               cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, 
               transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',

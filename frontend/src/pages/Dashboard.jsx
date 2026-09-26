@@ -24,7 +24,7 @@ function DonutChart({ data, colors, theme }) {
 
   return (
     <div style={{ display: 'flex', gap: 32, alignItems: 'center' }}>
-      <svg viewBox="0 0 100 100" width={110} height={110} style={{ flexShrink: 0, filter: theme.isDark ? 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' : 'none' }}>
+      <svg viewBox="0 0 100 100" width={110} height={110} style={{ flexShrink: 0 }}>
         <circle cx="50" cy="50" r="26" fill={theme.cardSolid} />
         {slices.map((s, i) => (
           <path key={i} d={s.path} fill={s.color} opacity={0.9} style={{ transition: 'all 0.3s' }} />
@@ -57,7 +57,7 @@ function StatCard({ label, value, sub, icon: Icon, accent, spark, theme }) {
       cursor: 'default',
       backdropFilter: 'blur(8px)'
     }} onMouseEnter={e => { e.currentTarget.style.borderColor = `${accent}66`; e.currentTarget.style.transform = 'translateY(-2px)' }} onMouseLeave={e => { e.currentTarget.style.borderColor = theme.border; e.currentTarget.style.transform = 'translateY(0)' }}>
-      <div style={{ position: 'absolute', top: 0, right: 0, width: 100, height: 100, background: `radial-gradient(circle at 100% 0%, ${accent}${theme.isDark ? '10' : '08'} 0%, transparent 70%)` }} />
+      <div style={{ position: 'absolute', top: 0, right: 0, width: 100, height: 100, background: `radial-gradient(circle at 100% 0%, ${accent}08 0%, transparent 70%)` }} />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
         <span style={{ fontSize: 12, color: theme.textMuted, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>{label}</span>
         <div style={{ color: accent, width: 20, height: 20, opacity: 0.8 }}><Icon /></div>
@@ -159,7 +159,7 @@ export default function Dashboard() {
               return (
                 <div key={source} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <span style={{ fontSize: 12, color: theme.textSecondary, minWidth: 150 }}>{source}</span>
-                  <div style={{ flex: 1, height: 6, background: theme.isDark ? theme.bg : theme.bgAlt, borderRadius: 3, overflow: 'hidden' }}>
+                  <div style={{ flex: 1, height: 6, background: theme.bgAlt, borderRadius: 3, overflow: 'hidden' }}>
                     <div style={{ height: '100%', width: `${(count / max) * 100}%`, background: `linear-gradient(90deg, ${DONUT_COLORS[i % DONUT_COLORS.length]}dd, ${DONUT_COLORS[i % DONUT_COLORS.length]})`, borderRadius: 3, transition: 'width 1.2s cubic-bezier(0.16, 1, 0.3, 1)' }} />
                   </div>
                   <span style={{ fontSize: 12, color: theme.text, fontWeight: 600, fontFamily: 'var(--font-mono)', minWidth: 50, textAlign: 'right' }}>{(count ?? 0).toLocaleString()}</span>
