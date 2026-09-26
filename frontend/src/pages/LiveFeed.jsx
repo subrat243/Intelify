@@ -58,13 +58,17 @@ export default function LiveFeed() {
   }, [fetchIOCs, page])
 
   const exportCSV = () => {
-    const header = 'type,value,confidence,malware,source,first_seen'
-    const rows = iocs.map(i => `${i.type},"${i.value}",${i.confidence},"${i.malware || ''}","${i.source}","${i.first_seen || ''}"`)
-    const blob = new Blob([[header, ...rows].join('\n')], { type: 'text/csv' })
+    const escapeCSV = value => `"${String(value ?? '').replaceAll('"', '""')}"`
+    const headers = ['type', 'value', 'confidence', 'malware', 'source', 'first_seen']
+    const rows = iocs.map(i => [i.type, i.value, i.confidence, i.malware, i.source, i.first_seen].map(escapeCSV).join(','))
+    const csv = [headers.map(escapeCSV).join(','), ...rows].join('\r\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
     const a = document.createElement('a')
-    a.href = URL.createObjectURL(blob)
+    const url = URL.createObjectURL(blob)
+    a.href = url
     a.download = `intelify_iocs_${new Date().toISOString().slice(0, 10)}.csv`
     a.click()
+    URL.revokeObjectURL(url)
   }
 
   return (
