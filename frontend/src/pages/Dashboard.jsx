@@ -1,8 +1,10 @@
+import { useState } from 'react'
 import { usePolling } from '../hooks/usePolling'
 import { api } from '../utils/api'
 import { Badge, Icons, SparkLine, AnimCounter, StatusDot, CONF_COLOR, TYPE_COLOR, useTheme, Spinner } from '../components/ui'
 
 function DonutChart({ data, colors, theme }) {
+  const [activeIndex, setActiveIndex] = useState(null)
   if (!data || Object.keys(data).length === 0) return null
   const entries = Object.entries(data).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1])
   const total = entries.reduce((a, [, v]) => a + v, 0)
@@ -27,14 +29,34 @@ function DonutChart({ data, colors, theme }) {
       <svg viewBox="0 0 100 100" width={220} height={220} style={{ flexShrink: 0, maxWidth: '100%', height: 'auto' }}>
         <circle cx="50" cy="50" r="26" fill={theme.cardSolid} />
         {slices.map((s, i) => (
-          <path key={i} d={s.path} fill={s.color} opacity={0.9} style={{ transition: 'all 0.3s' }} />
+          <path
+            key={i}
+            d={s.path}
+            fill={s.color}
+            opacity={activeIndex === null || activeIndex === i ? 1 : 0.72}
+            stroke={activeIndex === i ? theme.cardSolid : 'none'}
+            strokeWidth={activeIndex === i ? 1.5 : 0}
+            tabIndex={0}
+            role="img"
+            aria-label={`${s.key}: ${s.val.toLocaleString()} indicators, ${(s.pct * 100).toFixed(0)} percent`}
+            onMouseEnter={() => setActiveIndex(i)}
+            onMouseLeave={() => setActiveIndex(null)}
+            onFocus={() => setActiveIndex(i)}
+            onBlur={() => setActiveIndex(null)}
+            style={{ cursor: 'pointer', transition: 'opacity 0.2s, stroke-width 0.2s' }}
+          >
+            <title>{`${s.key}: ${s.val.toLocaleString()} indicators (${(s.pct * 100).toFixed(0)}%)`}</title>
+          </path>
         ))}
-        <text x="50" y="48" textAnchor="middle" fill={theme.text} fontSize="9" fontWeight="700">{total.toLocaleString()}</text>
-        <text x="50" y="57" textAnchor="middle" fill={theme.textMuted} fontSize="4.5">TOTAL IOCs</text>
       </svg>
       <div style={{ width: '100%', display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '12px 28px' }}>
         {slices.slice(0, 6).map((s, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div
+            key={i}
+            onMouseEnter={() => setActiveIndex(i)}
+            onMouseLeave={() => setActiveIndex(null)}
+            style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '4px 6px', borderRadius: 5, background: activeIndex === i ? theme.navActive : 'transparent', transition: 'background 0.2s' }}
+          >
             <div style={{ width: 8, height: 8, borderRadius: 2, background: s.color, flexShrink: 0 }} />
             <span style={{ fontSize: 12, color: theme.textSecondary, flex: 1 }}>{s.key}</span>
             <span style={{ fontSize: 12, color: theme.text, fontWeight: 600, fontFamily: 'var(--font-mono)' }}>{(s.val ?? 0).toLocaleString()}</span>
