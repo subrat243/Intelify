@@ -96,6 +96,7 @@ FEED_DEFINITIONS = [
 class FeedManager:
     def __init__(self):
         self._iocs: Dict[str, List[IOC]] = {}          # feed_id -> list of IOCs
+        self._ioc_registry: Dict[str, IOC] = {}        # canonical IOC key -> retained IOC
         self._feed_info: Dict[str, FeedInfo] = {}       # feed_id -> FeedInfo
         self._ingestion_history: List[int] = [0] * 20   # rolling count history
         self._running = False
@@ -119,14 +120,13 @@ class FeedManager:
 
     def _parse_feodo(self, text: str, feed_id: str) -> List[IOC]:
         iocs = []
-        for line in text.splitlines():
-            line = line.strip()
-            if not line or line.startswith("#"):
+        reader = csv.reader(io.StringIO(text), quotechar='"')
+        for parts in reader:
+            if not parts or parts[0].startswith("#"):
                 continue
-            parts = [p.strip('"') for p in line.split(",")]
             if len(parts) < 2:
                 continue
-            ip = parts[1] if len(parts) > 1 else parts[0]
+            ip = parts[1].strip()
             if not ip or not self._is_valid_ip(ip):
                 continue
             iocs.append(IOC(
@@ -134,11 +134,12 @@ class FeedManager:
                 type=IOCType.IP,
                 value=ip,
                 confidence=Confidence.HIGH,
-                malware=parts[3].strip('"') if len(parts) > 3 else "Botnet C2",
-                port=parts[2].strip('"') if len(parts) > 2 else None,
+                malware=parts[3].strip() if len(parts) > 3 else "Botnet C2",
+                port=parts[2].strip() if len(parts) > 2 else None,
                 source="Feodo Tracker",
+                sources=["Feodo Tracker"],
                 tags=["botnet", "c2", "ip"],
-                first_seen=parts[0].strip('"') if parts else None,
+                first_seen=parts[0].strip() if parts else None,
             ))
         return iocs[:200]
 
@@ -163,6 +164,7 @@ class FeedManager:
                 malware=tags[0] if tags else "Malware",
                 status=row[3].strip() if len(row) > 3 else None,
                 source="URLhaus",
+                sources=["URLhaus"],
                 tags=tags[:4],
                 first_seen=row[1].strip() if len(row) > 1 else None,
             ))
@@ -200,6 +202,7 @@ class FeedManager:
                 score=score,
                 malware=row[4].strip() if len(row) > 4 else "Unknown",
                 source="ThreatFox",
+                sources=["ThreatFox"],
                 tags=[row[4].strip(), raw_type][:4] if row[4].strip() else [raw_type],
                 first_seen=row[0].strip() if row else None,
             ))
@@ -224,6 +227,7 @@ class FeedManager:
                 malware=row[4].strip() if len(row) > 4 else "Unknown",
                 file_type=row[6].strip() if len(row) > 6 else None,
                 source="MalwareBazaar",
+                sources=["MalwareBazaar"],
                 tags=[row[4].strip(), row[6].strip()][:3] if len(row) > 6 else ["malware", "hash"],
                 first_seen=row[0].strip() if row else None,
             ))
@@ -242,6 +246,7 @@ class FeedManager:
                     score=95,
                     malware=v.get("product", v.get("vendorProject", "Unknown")),
                     source="CISA KEV",
+                    sources=["CISA KEV"],
                     tags=[v.get("vendorProject", ""), v.get("product", "")][:3],
                     first_seen=v.get("dateAdded"),
                     due_date=v.get("dueDate"),
@@ -253,11 +258,10 @@ class FeedManager:
 
     def _parse_sslbl(self, text: str, feed_id: str) -> List[IOC]:
         iocs = []
-        for line in text.splitlines():
-            line = line.strip()
-            if not line or line.startswith("#"):
+        reader = csv.reader(io.StringIO(text), quotechar='"')
+        for parts in reader:
+            if not parts or parts[0].startswith("#"):
                 continue
-            parts = [p.strip('"') for p in line.split(",")]
             sha1 = parts[0] if parts else ""
             if len(sha1) != 40:
                 continue
@@ -268,6 +272,7 @@ class FeedManager:
                 confidence=Confidence.HIGH,
                 malware=parts[2] if len(parts) > 2 else "Malicious SSL",
                 source="SSL Blacklist",
+                sources=["SSL Blacklist"],
                 tags=["ssl", "certificate", "malware"],
                 first_seen=parts[1] if len(parts) > 1 else None,
             ))
@@ -289,6 +294,7 @@ class FeedManager:
                 confidence=Confidence.MEDIUM,
                 malware=malware,
                 source=source,
+                sources=[source],
                 tags=tags,
             ))
         return iocs[:200]
@@ -329,6 +335,21 @@ class FeedManager:
                 iocs = []
 
             self._iocs[feed_id] = iocs
+            for ioc in iocs:
+                key = self._canonical_key(ioc.type.value, ioc.value)
+                existing = self._ioc_registry.get(key)
+                if existing is None:
+                    self._ioc_registry[key] = ioc
+                    continue
+                existing.sources = sorted(set(existing.sources or [existing.source]) | set(ioc.sources or [ioc.source]))
+                existing.tags = sorted(set(existing.tags) | set(ioc.tags))
+                existing.last_seen = datetime.utcnow().isoformat()
+                existing.fetched_at = ioc.fetched_at
+                if ioc.score > existing.score:
+                    existing.score = ioc.score
+                    existing.confidence = ioc.confidence
+                if ioc.description:
+                    existing.description = ioc.description
             fi.status = FeedStatus.OK
             fi.ioc_count = len(iocs)
             fi.last_fetch = datetime.utcnow()
@@ -375,10 +396,7 @@ class FeedManager:
     # ── Public accessors ─────────────────────────────────────────────────────
 
     def get_all_iocs(self) -> List[IOC]:
-        result = []
-        for iocs in self._iocs.values():
-            result.extend(iocs)
-        return result
+        return list(self._ioc_registry.values())
 
     def get_feed_iocs(self, feed_id: str) -> List[IOC]:
         return self._iocs.get(feed_id, [])
@@ -397,6 +415,10 @@ class FeedManager:
     @staticmethod
     def _make_id(feed_id: str, value: str) -> str:
         return f"{feed_id}-{hashlib.md5(value.encode()).hexdigest()[:10]}"
+
+    @staticmethod
+    def _canonical_key(ioc_type: str, value: str) -> str:
+        return f"{ioc_type.lower()}:{value.strip().lower()}"
 
     @staticmethod
     def _is_valid_ip(s: str) -> bool:

@@ -34,6 +34,7 @@ class IOC(BaseModel):
     confidence: Confidence = Confidence.MEDIUM
     malware: Optional[str] = None
     source: str
+    sources: List[str] = Field(default_factory=list)
     tags: List[str] = Field(default_factory=list)
     first_seen: Optional[str] = None
     last_seen: Optional[str] = None
