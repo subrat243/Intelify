@@ -71,6 +71,10 @@ export default function LiveFeed() {
     URL.revokeObjectURL(url)
   }
 
+  const pageWindowStart = Math.max(1, Math.min(page - 3, pages - 7))
+  const visiblePages = Array.from({ length: Math.min(pages, 8) }, (_, index) => pageWindowStart + index)
+  const goToPage = nextPage => setPage(Math.max(1, Math.min(nextPage, pages)))
+
   return (
     <div style={{ animation: 'fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)' }}>
       {/* Toolbar */}
@@ -209,8 +213,16 @@ export default function LiveFeed() {
           Displaying <span style={{ color: theme.textSecondary, fontWeight: 700 }}>{iocs.length}</span> of <span style={{ color: theme.textSecondary, fontWeight: 700 }}>{(total || 0).toLocaleString()}</span> indicators
         </div>
         {pages > 1 && (
-          <div style={{ display: 'flex', gap: 6 }}>
-            {Array.from({ length: Math.min(pages, 8) }, (_, i) => i + 1).map(p => (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <button
+              onClick={() => goToPage(page - 1)}
+              disabled={page === 1}
+              aria-label="Previous page"
+              style={{ minWidth: 32, height: 32, borderRadius: 8, background: theme.card, border: `1px solid ${theme.border}`, color: page === 1 ? theme.textMuted : theme.textSecondary, fontSize: 16, cursor: page === 1 ? 'not-allowed' : 'pointer' }}
+            >
+              &lt;
+            </button>
+            {visiblePages.map(p => (
               <button key={p} onClick={() => { setPage(p); fetchIOCs(p) }} style={{
                 minWidth: 32, height: 32, borderRadius: 8,
                 background: page === p ? theme.primary + '11' : theme.card,
@@ -219,7 +231,14 @@ export default function LiveFeed() {
                 fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s',
               }}>{p}</button>
             ))}
-            {pages > 8 && <span style={{ fontSize: 12, color: theme.textMuted, alignSelf: 'center', padding: '0 8px' }}>… {pages}</span>}
+            <button
+              onClick={() => goToPage(page + 1)}
+              disabled={page === pages}
+              aria-label="Next page"
+              style={{ minWidth: 32, height: 32, borderRadius: 8, background: theme.card, border: `1px solid ${theme.border}`, color: page === pages ? theme.textMuted : theme.textSecondary, fontSize: 16, cursor: page === pages ? 'not-allowed' : 'pointer' }}
+            >
+              &gt;
+            </button>
           </div>
         )}
       </div>
