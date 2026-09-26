@@ -57,7 +57,7 @@ function AppLayout() {
     .dashboard-chart-grid, .dashboard-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .dashboard-feed-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .live-feed-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 20px; align-items: start; }
-    .live-toolbar { display: flex !important; flex-direction: column; align-items: stretch !important; min-width: 0; height: calc(100vh - 210px); min-height: 460px; overflow: hidden; margin-bottom: 0 !important; }
+    .live-toolbar { display: flex !important; flex-direction: column; align-items: stretch !important; min-width: 0; height: auto; min-height: 0; overflow: hidden; margin-bottom: 0 !important; }
     .live-toolbar > div { width: auto !important; height: auto !important; }
     .live-toolbar > div:first-child { display: flex; flex-wrap: wrap; }
     .live-toolbar > div:first-child button { flex: 1 1 70px; }
