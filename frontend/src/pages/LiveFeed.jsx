@@ -77,7 +77,11 @@ export default function LiveFeed() {
 
   const pageWindowStart = Math.max(1, Math.min(page - 3, pages - 7))
   const visiblePages = Array.from({ length: Math.min(pages, 8) }, (_, index) => pageWindowStart + index)
-  const goToPage = nextPage => setPage(Math.max(1, Math.min(nextPage, pages)))
+  const goToPage = nextPage => {
+    const targetPage = Math.max(1, Math.min(nextPage, pages))
+    setPage(targetPage)
+    fetchIOCs(targetPage)
+  }
 
   return (
     <div style={{ animation: 'fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)' }}>
@@ -227,7 +231,7 @@ export default function LiveFeed() {
               &lt;
             </button>
             {visiblePages.map(p => (
-              <button key={p} onClick={() => setPage(p)} style={{
+              <button key={p} onClick={() => goToPage(p)} style={{
                 minWidth: 32, height: 32, borderRadius: 8,
                 background: page === p ? theme.primary + '11' : theme.card,
                 border: `1px solid ${page === p ? theme.primary + '44' : theme.border}`,
