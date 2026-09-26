@@ -19,6 +19,7 @@ Ingests live IOC feeds, provides a searchable REST API, and a React dashboard �
 - **Zero dependencies on paid services** — all data from free, public threat intel sources
 - **CSV export** — download any filtered IOC set
 - **Docker Compose** — one command to run everything
+- **Retained IOC registry** — duplicate indicators are merged across feeds and remain available across refreshes
 
 ---
 
@@ -210,6 +211,16 @@ To add new feeds, edit `backend/services/feed_manager.py`:
 1. Add an entry to `FEED_DEFINITIONS` with `id`, `name`, `org`, `type`, `color`, `url`, `refresh_interval_minutes`
 2. Add a parser method `_parse_yourfeed(self, text, feed_id) -> List[IOC]`
 3. Dispatch it in `fetch_feed()` with `elif feed_id == "yourfeed": iocs = self._parse_yourfeed(...)`
+
+## Tests
+
+Run the backend regression suite from the repository root:
+
+```bash
+PYTHONPATH=backend python -m unittest discover -s backend/tests -v
+```
+
+The registry retains indicators seen in previous feed snapshots, deduplicates them by normalized type and value, and records all feeds that have reported each indicator in the `sources` field.
 
 ---
 
