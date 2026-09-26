@@ -71,6 +71,21 @@ class FeedManagerTests(unittest.TestCase):
         self.assertEqual(len(parsed), 1)
         self.assertEqual(parsed[0].value, "e58d378500a9237df93a66f055ac6e0dc900d7fa")
 
+    def test_bazaar_parser_handles_spaces_before_quoted_fields(self):
+        sha256 = "a" * 64
+        text = f'"2026-09-26", "{sha256}", "md5", "sha1", "abuse_ch", "test", "elf"\n'
+
+        parsed = self.manager._parse_bazaar(text, "bazaar")
+
+        self.assertEqual(len(parsed), 1)
+        self.assertEqual(parsed[0].value, sha256)
+
+    def test_plain_ip_parser_handles_tab_separated_scores(self):
+        parsed = self.manager._parse_plain_ips("138.226.239.233\t11\n", "ipsum", "IPsum", "Malicious IP", ["ip"])
+
+        self.assertEqual(len(parsed), 1)
+        self.assertEqual(parsed[0].value, "138.226.239.233")
+
 
 if __name__ == "__main__":
     unittest.main()

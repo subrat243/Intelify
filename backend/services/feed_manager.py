@@ -155,7 +155,7 @@ class FeedManager:
 
     def _parse_feodo(self, text: str, feed_id: str) -> List[IOC]:
         iocs = []
-        reader = csv.reader(io.StringIO(text), quotechar='"')
+        reader = csv.reader(io.StringIO(text), quotechar='"', skipinitialspace=True)
         for parts in reader:
             if not parts or parts[0].startswith("#"):
                 continue
@@ -180,7 +180,7 @@ class FeedManager:
 
     def _parse_urlhaus(self, text: str, feed_id: str) -> List[IOC]:
         iocs = []
-        reader = csv.reader(io.StringIO(text), quotechar='"')
+        reader = csv.reader(io.StringIO(text), quotechar='"', skipinitialspace=True)
         for row in reader:
             if not row or row[0].startswith("#"):
                 continue
@@ -207,7 +207,7 @@ class FeedManager:
 
     def _parse_threatfox(self, text: str, feed_id: str) -> List[IOC]:
         iocs = []
-        reader = csv.reader(io.StringIO(text), quotechar='"')
+        reader = csv.reader(io.StringIO(text), quotechar='"', skipinitialspace=True)
         for row in reader:
             if not row or row[0].startswith("#"):
                 continue
@@ -254,7 +254,7 @@ class FeedManager:
 
     def _parse_bazaar(self, text: str, feed_id: str) -> List[IOC]:
         iocs = []
-        reader = csv.reader(io.StringIO(text), quotechar='"')
+        reader = csv.reader(io.StringIO(text), quotechar='"', skipinitialspace=True)
         for row in reader:
             if not row or row[0].startswith("#"):
                 continue
@@ -302,7 +302,7 @@ class FeedManager:
 
     def _parse_sslbl(self, text: str, feed_id: str) -> List[IOC]:
         iocs = []
-        reader = csv.reader(io.StringIO(text), quotechar='"')
+        reader = csv.reader(io.StringIO(text), quotechar='"', skipinitialspace=True)
         for parts in reader:
             if not parts or parts[0].startswith("#"):
                 continue
@@ -328,7 +328,7 @@ class FeedManager:
             line = line.strip()
             if not line or line.startswith("#"):
                 continue
-            ip = line.split()[0] if " " in line else line
+            ip = line.split()[0]
             if not self._is_valid_ip(ip):
                 continue
             iocs.append(IOC(
