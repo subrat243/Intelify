@@ -57,8 +57,10 @@ function AppLayout() {
     .dashboard-chart-grid, .dashboard-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .dashboard-feed-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .live-feed-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 20px; align-items: start; }
-    .live-toolbar { display: flex !important; flex-direction: column; align-items: stretch !important; margin-bottom: 0 !important; }
+    .live-toolbar { display: flex !important; flex-direction: column; align-items: stretch !important; min-width: 0; overflow: hidden; margin-bottom: 0 !important; }
     .live-toolbar > div { width: auto !important; height: auto !important; }
+    .live-toolbar > div:first-child { display: flex; flex-wrap: wrap; }
+    .live-toolbar > div:first-child button { flex: 1 1 70px; }
     .live-toolbar select { width: 100%; max-width: none !important; }
     .live-toolbar > div:last-child { margin-left: 0 !important; flex-direction: column; }
     .live-toolbar > div:last-child button { justify-content: center; }
