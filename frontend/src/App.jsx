@@ -14,7 +14,7 @@ const NAV_ITEMS = [
 
 export default function App() {
   const [page, setPage] = useState('dashboard')
-  const [themeMode, setThemeMode] = useState('dark')
+  const [themeMode, setThemeMode] = useState('light')
 
   const theme = useMemo(() => THEMES[themeMode], [themeMode])
 
@@ -26,11 +26,11 @@ export default function App() {
   }
 
   const GLOBAL_STYLES = `
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
     :root {
-      --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-      --font-mono: 'JetBrains Mono', monospace;
+      --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+      --font-mono: 'IBM Plex Mono', monospace;
     }
 
     body {
@@ -39,8 +39,10 @@ export default function App() {
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       background: ${theme.bg};
+      background-image: linear-gradient(${theme.borderLight} 1px, transparent 1px), linear-gradient(90deg, ${theme.borderLight} 1px, transparent 1px);
+      background-size: 48px 48px;
       color: ${theme.text};
-      transition: background 0.3s, color 0.3s;
+      transition: background 0.2s, color 0.2s;
     }
 
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -103,7 +105,7 @@ export default function App() {
           {/* Logo */}
           <div style={{ padding: '32px 24px 24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{ background: `linear-gradient(135deg, ${theme.primary}, ${theme.accent})`, width: 32, height: 32, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 8px 16px -4px ${theme.primary}44` }}>
+              <div style={{ background: theme.primary, width: 32, height: 32, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{ color: theme.isDark ? theme.bg : '#fff', width: 18, height: 18 }}><Icons.Shield /></div>
               </div>
               <div>
@@ -126,12 +128,12 @@ export default function App() {
                   style={{
                     display: 'flex', alignItems: 'center', gap: 12, width: '100%',
                     padding: '10px 14px', borderRadius: 10, border: 'none', marginBottom: 4,
-                    background: active ? (theme.isDark ? '#1e293b44' : '#e2e8f088') : 'transparent',
+                    background: active ? theme.navActive : 'transparent',
                     color: active ? theme.text : theme.textSecondary,
                     fontSize: 13, fontWeight: active ? 600 : 500, transition: 'all 0.2s', textAlign: 'left',
                   }}
-                  onMouseEnter={e => { if (!active) e.currentTarget.style.background = theme.isDark ? '#1e293b22' : '#f1f5f9'; e.currentTarget.style.color = theme.text }}
-                  onMouseLeave={e => { e.currentTarget.style.background = active ? (theme.isDark ? '#1e293b44' : '#e2e8f088') : 'transparent'; e.currentTarget.style.color = active ? theme.text : theme.textSecondary }}
+                  onMouseEnter={e => { if (!active) e.currentTarget.style.background = theme.navHover; e.currentTarget.style.color = theme.text }}
+                  onMouseLeave={e => { e.currentTarget.style.background = active ? theme.navActive : 'transparent'; e.currentTarget.style.color = active ? theme.text : theme.textSecondary }}
                 >
                   <div style={{ width: 18, height: 18, color: active ? theme.accent : 'inherit', flexShrink: 0 }}>
                     <item.icon />
