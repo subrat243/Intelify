@@ -65,6 +65,8 @@ function AppLayout() {
     .live-toolbar > div:last-child { margin-left: 0 !important; flex-direction: column; }
     .live-toolbar > div:last-child button { justify-content: center; }
     .live-table, .live-pagination { grid-column: 2; }
+    .live-table { display: flex; flex-direction: column; height: calc(100vh - 210px); min-height: 460px; }
+    .live-table > div:last-child { flex: 1; min-height: 0; max-height: none !important; }
     .ioc-grid { grid-template-columns: 90px minmax(180px, 1fr) 120px 160px 160px 110px; }
     .feed-grid { grid-template-columns: 260px 110px 100px minmax(120px, 1fr) 120px 120px 120px; }
 
@@ -95,6 +97,7 @@ function AppLayout() {
       .dashboard-feed-grid { grid-template-columns: 1fr !important; }
       .live-feed-layout { display: block; }
       .live-toolbar { margin-bottom: 14px !important; }
+      .live-table { height: auto; min-height: 460px; }
       .ioc-grid { grid-template-columns: 70px minmax(180px, 1fr) 100px; padding-left: 14px !important; padding-right: 14px !important; }
       .ioc-grid > :nth-child(4), .ioc-grid > :nth-child(5), .ioc-grid > :nth-child(6) { display: none; }
       .feed-grid { display: flex !important; flex-wrap: wrap; gap: 12px !important; }
