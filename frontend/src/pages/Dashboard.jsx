@@ -26,7 +26,7 @@ function DonutChart({ data, colors, theme }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 22, alignItems: 'center', justifyContent: 'space-between', flex: 1, minHeight: 340, paddingTop: 8 }}>
-      <svg viewBox="0 0 100 100" width={280} height={280} style={{ flexShrink: 0, maxWidth: '100%', height: 'auto' }}>
+      <svg viewBox="0 0 100 100" width={400} height={400} style={{ flexShrink: 0, maxWidth: '100%', height: 'auto' }}>
         <circle cx="50" cy="50" r="26" fill={theme.cardSolid} />
         {slices.map((s, i) => (
           <path
@@ -36,14 +36,9 @@ function DonutChart({ data, colors, theme }) {
             opacity={activeIndex === null || activeIndex === i ? 1 : 0.72}
             stroke={activeIndex === i ? theme.cardSolid : 'none'}
             strokeWidth={activeIndex === i ? 1.5 : 0}
-            tabIndex={0}
-            role="img"
-            aria-label={`${s.key}: ${s.val.toLocaleString()} indicators, ${(s.pct * 100).toFixed(0)} percent`}
             onMouseEnter={() => setActiveIndex(i)}
             onMouseLeave={() => setActiveIndex(null)}
-            onFocus={() => setActiveIndex(i)}
-            onBlur={() => setActiveIndex(null)}
-            style={{ cursor: 'pointer', transition: 'opacity 0.2s, stroke-width 0.2s' }}
+            style={{ cursor: 'pointer', outline: 'none', transition: 'opacity 0.2s, stroke-width 0.2s' }}
           >
             <title>{`${s.key}: ${s.val.toLocaleString()} indicators (${(s.pct * 100).toFixed(0)}%)`}</title>
           </path>
