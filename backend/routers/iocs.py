@@ -32,7 +32,7 @@ async def list_iocs(
     if confidence and confidence != "All":
         filtered = [i for i in filtered if i.confidence.value == confidence]
     if source and source != "All":
-        filtered = [i for i in filtered if i.source == source]
+        filtered = [i for i in filtered if source in (i.sources or [i.source])]
 
     total = len(filtered)
     start = (page - 1) * limit
