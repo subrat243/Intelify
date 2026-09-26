@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Query
+from fastapi import APIRouter, Request, Query, HTTPException
 from typing import Optional
 from models.schemas import IOC, SearchResult
 
@@ -55,10 +55,13 @@ async def get_ioc(ioc_id: str, request: Request):
 async def lookup_ioc(request: Request, body: dict):
     """Bulk lookup: { values: ["1.2.3.4", "evil.com"] }"""
     fm = _get_fm(request)
-    values = body.get("values", [])
+    values = body.get("values")
+    if not isinstance(values, list):
+        raise HTTPException(status_code=422, detail="values must be a list")
+    values = [value.strip() for value in values if isinstance(value, str) and value.strip()][:50]
     all_iocs = fm.get_all_iocs()
     results = {}
-    for val in values[:50]:  # cap at 50
+    for val in values:
         vl = val.lower()
         hits = [i for i in all_iocs if vl in i.value.lower()]
         results[val] = [h.model_dump() for h in hits[:5]]
