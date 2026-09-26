@@ -3,7 +3,7 @@ import Dashboard from './pages/Dashboard'
 import LiveFeed from './pages/LiveFeed'
 import Search from './pages/Search'
 import Feeds from './pages/Feeds'
-import { Icons, THEMES, ThemeContext } from './components/ui'
+import { GlyphMatrix, Icons, THEMES, ThemeContext } from './components/ui'
 
 const NAV_ITEMS = [
   { id: 'dashboard', path: '/', label: 'Dashboard', icon: Icons.Activity },
@@ -116,11 +116,14 @@ function AppLayout() {
   return (
     <ThemeContext.Provider value={{ theme }}>
       <style>{GLOBAL_STYLES}</style>
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: theme.bg, overflow: 'hidden' }}>
+      <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100vh', background: theme.bg, overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', inset: 0, opacity: 0.12, pointerEvents: 'none', zIndex: 0 }}>
+          <GlyphMatrix glyphs="01.+*/\\<>=" cellSize={14} mutationRate={0.04} interval={90} fadeBottom={0.6} color="#60758c" />
+        </div>
         {/* ── Sidebar ───────────────────────────────────────────────────── */}
         <aside style={{
           width: '100%', height: 72, background: theme.bgAlt, borderBottom: `1px solid ${theme.border}`,
-          display: 'flex', alignItems: 'center', flexShrink: 0,
+          display: 'flex', alignItems: 'center', flexShrink: 0, position: 'relative', zIndex: 1,
         }}>
           {/* Logo */}
           <div style={{ padding: '32px 24px 24px' }}>
@@ -191,7 +194,7 @@ function AppLayout() {
         </aside>
 
         {/* ── Main ──────────────────────────────────────────────────────── */}
-        <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative', zIndex: 1 }}>
           {/* Page content */}
           <div style={{ flex: 1, overflowY: 'auto', padding: '32px' }}>
             <div style={{ width: '100%', maxWidth: 1440, margin: '0 auto' }}>

@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext, useContext } from 'react'
+import { useState, useEffect, useRef, createContext, useContext } from 'react'
 
 // ── Theme Management ──────────────────────────────────────────────────────────
 export const ThemeContext = createContext()
@@ -46,6 +46,67 @@ export const TYPE_COLOR = (t) => ({
   CVE: t.accent,
   Email: '#0ea5e9',
 })
+
+export function GlyphMatrix({ glyphs = '01.+*/\\<>=' , cellSize = 14, mutationRate = 0.04, interval = 90, fadeBottom = 0.6, color = '#6B7280' }) {
+  const canvasRef = useRef(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return undefined
+    const context = canvas.getContext('2d')
+    if (!context) return undefined
+    let frame = null
+    let columns = 0
+    let rows = 0
+    let cells = []
+
+    const resize = () => {
+      const bounds = canvas.getBoundingClientRect()
+      const ratio = window.devicePixelRatio || 1
+      canvas.width = Math.max(1, Math.floor(bounds.width * ratio))
+      canvas.height = Math.max(1, Math.floor(bounds.height * ratio))
+      context.setTransform(ratio, 0, 0, ratio, 0, 0)
+      columns = Math.ceil(bounds.width / cellSize)
+      rows = Math.ceil(bounds.height / cellSize)
+      cells = Array.from({ length: columns * rows }, () => Math.random())
+    }
+
+    const draw = () => {
+      const bounds = canvas.getBoundingClientRect()
+      context.clearRect(0, 0, bounds.width, bounds.height)
+        context.font = `${cellSize}px "IBM Plex Mono", monospace`
+      context.textBaseline = 'top'
+      for (let row = 0; row < rows; row += 1) {
+        const fade = 1 - (row / Math.max(rows - 1, 1)) * fadeBottom
+        for (let column = 0; column < columns; column += 1) {
+          const index = row * columns + column
+          if (Math.random() < mutationRate) cells[index] = Math.random()
+          const opacity = (0.18 + cells[index] * 0.55) * fade
+          const glyph = glyphs[Math.floor(cells[index] * glyphs.length)] || glyphs[0]
+          context.fillStyle = `${color}${Math.floor(opacity * 255).toString(16).padStart(2, '0')}`
+          context.fillText(glyph, column * cellSize, row * cellSize)
+        }
+      }
+    }
+
+    resize()
+    const observer = new ResizeObserver(resize)
+    observer.observe(canvas)
+    const timer = window.setInterval(() => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(draw)
+    }, interval)
+    draw()
+
+    return () => {
+      observer.disconnect()
+      window.clearInterval(timer)
+      cancelAnimationFrame(frame)
+    }
+  }, [cellSize, color, fadeBottom, glyphs, interval, mutationRate])
+
+  return <canvas ref={canvasRef} aria-hidden="true" style={{ display: 'block', width: '100%', height: '100%' }} />
+}
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 export const Icons = {
