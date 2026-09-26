@@ -102,7 +102,7 @@ export default function Dashboard() {
   return (
     <div style={{ animation: 'fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)' }}>
       {/* Stat cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20, marginBottom: 24 }}>
+      <div className="dashboard-stat-grid" style={{ display: 'grid', gap: 20, marginBottom: 24 }}>
         <StatCard
           theme={theme}
           label="Total Indicators" value={stats?.total ?? 0}
@@ -129,7 +129,7 @@ export default function Dashboard() {
         />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 20, marginBottom: 24 }}>
+      <div className="dashboard-chart-grid" style={{ display: 'grid', gap: 20, marginBottom: 24 }}>
         {/* Total Ingestion */}
         <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 16, padding: 28, backdropFilter: 'blur(8px)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
@@ -149,7 +149,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+      <div className="dashboard-detail-grid" style={{ display: 'grid', gap: 20 }}>
         {/* Source breakdown */}
         <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 16, padding: 28, backdropFilter: 'blur(8px)' }}>
           <div style={{ fontSize: 12, color: theme.textMuted, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: 20 }}>Intelligence Sources</div>

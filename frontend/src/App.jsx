@@ -52,6 +52,38 @@ export default function App() {
 
     button { cursor: pointer; font-family: inherit; }
     * { box-sizing: border-box; }
+
+    .dashboard-stat-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .dashboard-chart-grid, .dashboard-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ioc-grid { grid-template-columns: 90px minmax(180px, 1fr) 120px 160px 160px 110px; }
+    .feed-grid { grid-template-columns: 260px 110px 100px minmax(120px, 1fr) 120px 120px 120px; }
+
+    @media (max-width: 900px) {
+      aside { width: 190px !important; }
+      main > header { padding: 0 20px !important; }
+      main > div { padding: 20px !important; }
+      .dashboard-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .dashboard-chart-grid, .dashboard-detail-grid { grid-template-columns: 1fr; }
+      .feed-grid { grid-template-columns: 1.5fr 100px 80px minmax(80px, 1fr) 100px 100px 110px; gap: 8px !important; padding-left: 16px !important; padding-right: 16px !important; }
+    }
+
+    @media (max-width: 640px) {
+      aside { width: 64px !important; }
+      aside nav button { justify-content: center; padding-left: 10px !important; padding-right: 10px !important; }
+      aside nav button > div:last-child, aside nav button > div + *, aside nav button { font-size: 0 !important; }
+      aside nav button > div:first-child { font-size: initial !important; }
+      aside > div:first-child { padding: 20px 16px !important; }
+      aside > div:first-child > div > div:last-child, aside > div:last-child { display: none !important; }
+      main > header { padding: 0 14px !important; }
+      main > header a { display: none !important; }
+      main > div { padding: 14px !important; }
+      .dashboard-stat-grid { gap: 10px !important; }
+      .ioc-grid { grid-template-columns: 70px minmax(180px, 1fr) 100px; padding-left: 14px !important; padding-right: 14px !important; }
+      .ioc-grid > :nth-child(4), .ioc-grid > :nth-child(5), .ioc-grid > :nth-child(6) { display: none; }
+      .feed-grid { display: flex !important; flex-wrap: wrap; gap: 12px !important; }
+      .feed-grid > :first-child { flex: 1 1 100%; }
+      .feed-grid > :nth-child(4) { display: none; }
+    }
     
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }

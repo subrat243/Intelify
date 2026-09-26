@@ -139,9 +139,8 @@ export default function LiveFeed() {
       {/* Table */}
       <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 16, overflow: 'hidden', boxShadow: theme.isDark ? '0 4px 30px rgba(0,0,0,0.4)' : '0 4px 12px rgba(15,23,42,0.05)', backdropFilter: 'blur(8px)' }}>
         {/* Header */}
-        <div style={{
+        <div className="ioc-grid" style={{
           display: 'grid',
-          gridTemplateColumns: '90px 1fr 120px 160px 160px 110px',
           padding: '14px 24px', borderBottom: `1px solid ${theme.border}`,
           fontSize: 10, color: theme.textMuted, fontWeight: 700, letterSpacing: '0.06em',
           textTransform: 'uppercase'
@@ -170,12 +169,11 @@ export default function LiveFeed() {
               const cc = CONF_COLOR(theme)[ioc.confidence] || theme.textMuted
               const isNew = newIds.has(ioc.id)
               return (
-                <div
+                <div className="ioc-grid"
                   key={ioc.id}
                   onClick={() => setSelectedIOC(ioc)}
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: '90px 1fr 120px 160px 160px 110px',
                     padding: '12px 24px',
                     borderBottom: `1px solid ${theme.borderLight}`,
                     alignItems: 'center',

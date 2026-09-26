@@ -102,9 +102,8 @@ export default function Feeds() {
               backdropFilter: 'blur(8px)'
             }}>
               {/* Feed header row */}
-              <div style={{ 
+              <div className="feed-grid" style={{
                 display: 'grid', 
-                gridTemplateColumns: '260px 110px 100px 1fr 120px 120px 120px', 
                 gap: 16, 
                 padding: '20px 24px', 
                 alignItems: 'center' 
