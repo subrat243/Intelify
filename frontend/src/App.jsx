@@ -59,7 +59,7 @@ export default function App() {
     .feed-grid { grid-template-columns: 260px 110px 100px minmax(120px, 1fr) 120px 120px 120px; }
 
     @media (max-width: 900px) {
-      aside { width: 190px !important; }
+      aside { width: 100% !important; }
       main > header { padding: 0 20px !important; }
       main > div { padding: 20px !important; }
       .dashboard-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -68,12 +68,12 @@ export default function App() {
     }
 
     @media (max-width: 640px) {
-      aside { width: 64px !important; }
-      aside nav button { justify-content: center; padding-left: 10px !important; padding-right: 10px !important; }
-      aside nav button > div:last-child, aside nav button > div + *, aside nav button { font-size: 0 !important; }
-      aside nav button > div:first-child { font-size: initial !important; }
-      aside > div:first-child { padding: 20px 16px !important; }
+      aside { height: 60px !important; }
+      aside > div:first-child { padding: 14px 16px !important; }
       aside > div:first-child > div > div:last-child, aside > div:last-child { display: none !important; }
+      aside nav { overflow-x: auto; padding: 6px 8px !important; }
+      aside nav button { flex-shrink: 0; padding: 8px 10px !important; }
+      aside nav button > div:last-child { display: none; }
       main > header { padding: 0 14px !important; }
       main > header a { display: none !important; }
       main > div { padding: 14px !important; }
@@ -94,11 +94,11 @@ export default function App() {
   return (
     <ThemeContext.Provider value={{ theme }}>
       <style>{GLOBAL_STYLES}</style>
-      <div style={{ display: 'flex', height: '100vh', background: theme.bg, overflow: 'hidden' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: theme.bg, overflow: 'hidden' }}>
         {/* ── Sidebar ───────────────────────────────────────────────────── */}
         <aside style={{
-          width: 240, background: theme.bgAlt, borderRight: `1px solid ${theme.border}`,
-          display: 'flex', flexDirection: 'column', flexShrink: 0,
+          width: '100%', height: 72, background: theme.bgAlt, borderBottom: `1px solid ${theme.border}`,
+          display: 'flex', alignItems: 'center', flexShrink: 0,
         }}>
           {/* Logo */}
           <div style={{ padding: '32px 24px 24px' }}>
@@ -116,7 +116,7 @@ export default function App() {
           </div>
 
           {/* Nav */}
-          <nav style={{ padding: '8px 12px', flex: 1 }}>
+          <nav style={{ padding: '8px 12px', flex: 1, display: 'flex', alignItems: 'center', gap: 4, overflowX: 'auto' }}>
             {NAV_ITEMS.map(item => {
               const active = page === item.id
               return (
@@ -124,8 +124,8 @@ export default function App() {
                   key={item.id}
                   onClick={() => setPage(item.id)}
                   style={{
-                    display: 'flex', alignItems: 'center', gap: 12, width: '100%',
-                    padding: '10px 14px', borderRadius: 10, border: 'none', marginBottom: 4,
+                    display: 'flex', alignItems: 'center', gap: 10, width: 'auto',
+                    padding: '10px 14px', borderRadius: 8, border: 'none', marginBottom: 0,
                     background: active ? theme.navActive : 'transparent',
                     color: active ? theme.text : theme.textSecondary,
                     fontSize: 13, fontWeight: active ? 600 : 500, transition: 'all 0.2s', textAlign: 'left',
@@ -144,7 +144,7 @@ export default function App() {
           </nav>
 
           {/* Footer */}
-          <div style={{ padding: '20px 24px', borderTop: `1px solid ${theme.border}` }}>
+          <div style={{ padding: '12px 24px', borderLeft: `1px solid ${theme.border}` }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
               <div style={{ width: 6, height: 6, borderRadius: '50%', background: theme.success, boxShadow: `0 0 8px ${theme.success}` }} />
               <span style={{ fontSize: 11, color: theme.textSecondary, fontWeight: 500 }}>System Nominal</span>
